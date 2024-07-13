@@ -22,6 +22,7 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 # Use PG as the database for Active Record
+gem 'httparty'
 gem 'pg'
 
 # Use Active Storage variant
