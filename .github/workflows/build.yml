@@ -7,7 +7,7 @@ on:
 env:
   RAILS_ENV: test
   BUNDLE_WITHOUT: development
-  RAILS_MASTER_KEY: {{ your_test_master.key }}
+  RAILS_MASTER_KEY: 6c7a332b6eb0eacf74b830f65b0cab04
 
 jobs:
   bundle-cache:
