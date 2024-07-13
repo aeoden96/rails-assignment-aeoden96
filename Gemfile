@@ -27,6 +27,7 @@ gem 'jbuilder', '~> 2.7'
 
 group :development, :test do
   gem 'overcommit', require: false
+  gem 'rspec-rails', '~> 6.1.0'
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
