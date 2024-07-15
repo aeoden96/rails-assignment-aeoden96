@@ -41,4 +41,26 @@ RSpec.describe OpenWeatherMap::City do
       expect(zagreb <=> sisak).to eq(1)
     end
   end
+
+  describe 'parse API response' do
+    it 'parses the API response correctly' do
+      res = {
+        'id' => 1234,
+        'coord' => {
+          'lat' => 89.312,
+          'lon' => 12.123
+        },
+        'name' => 'Zagreb',
+        'main' => {
+          'temp' => 300
+        }
+      }
+      city = OpenWeatherMap::City.parse(res)
+      expect(city.id).to eq(1234)
+      expect(city.lat).to eq(89.312)
+      expect(city.lon).to eq(12.123)
+      expect(city.name).to eq('Zagreb')
+      expect(city.temp).to eq(26.85)
+    end
+  end
 end

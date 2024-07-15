@@ -22,5 +22,15 @@ module OpenWeatherMap
         temp <=> other.temp
       end
     end
+
+    def self.parse(city)
+      new(
+        id: city['id'],
+        name: city['name'],
+        lat: city['coord']['lat'],
+        lon: city['coord']['lon'],
+        temp_k: city['main']['temp']
+      )
+    end
   end
 end
