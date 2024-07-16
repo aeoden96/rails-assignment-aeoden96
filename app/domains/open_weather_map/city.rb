@@ -15,6 +15,14 @@ module OpenWeatherMap
       (@temp_k - 273.15).round(2)
     end
 
+    def nearby(count: 5)
+      OpenWeatherMap.nearby(lat, lon, count)
+    end
+
+    def coldest_nearby(count: 5)
+      nearby(count: count).min
+    end
+
     def <=>(other)
       if temp == other.temp
         name <=> other.name

@@ -2,20 +2,45 @@
 
 # Description: This module is responsible for fetching the weather data from the OpenWeatherMap API.
 module OpenWeatherMap
-  URL = 'https://api.openweathermap.org/data/2.5/'
+  # Description: This module is responsible for fetching the weather data from the OpenWeatherMap API.
+  module OpenWeatherMapApi
+    URL = 'https://api.openweathermap.org/data/2.5/'
+
+    private_class_method def self.appid
+      Rails.application.credentials.open_weather_map_api_key
+    end
+
+    private_class_method def self.get(city_params)
+      HTTParty.get("#{URL}#{city_params}&appid=#{appid}")
+    end
+
+    def self.fetch_city(city_id)
+      get("weather?id=#{city_id}")
+    end
+
+    def self.fetch_cities(city_ids)
+      get("group?id=#{city_ids}")
+    end
+
+    def self.fetch_nearby(lat, lon, count)
+      get("find?lat=#{lat}&lon=#{lon}&cnt=#{count}")
+    end
+  end
 
   def self.city(city_name)
     city_id = OpenWeatherMap::Resolver.city_id(city_name)
     return nil if city_id.nil?
 
-    handle_response(fetch_weather_data(city_id))
+    handle_response(OpenWeatherMapApi.fetch_city(city_id))
   end
 
   def self.cities(city_names)
-    handle_response(fetch_multiple_weather_data(resolve_ids(city_names)), multiple: true)
+    handle_response(OpenWeatherMapApi.fetch_cities(resolve_ids(city_names).join(',')), multiple: true)
   end
 
-  private
+  def self.nearby(lat, lon, count)
+    handle_response(OpenWeatherMapApi.fetch_nearby(lat, lon, count), multiple: true)
+  end
 
   private_class_method def self.resolve_id(city_name)
     OpenWeatherMap::Resolver.city_id(city_name)
@@ -23,22 +48,6 @@ module OpenWeatherMap
 
   private_class_method def self.resolve_ids(city_names)
     city_names.map(&method(:resolve_id)).compact
-  end
-
-  private_class_method def self.fetch_weather_data(city_id)
-    get(city_id)
-  end
-
-  private_class_method def self.fetch_multiple_weather_data(city_ids)
-    get(city_ids.join(','), multiple: true)
-  end
-
-  private_class_method def self.get(city_params, multiple: false)
-    HTTParty.get("#{URL}#{multiple ? 'group' : 'weather'}?id=#{city_params}&appid=#{appid}")
-  end
-
-  private_class_method def self.appid
-    Rails.application.credentials.open_weather_map_api_key
   end
 
   private_class_method def self.parse_list(city_list)
