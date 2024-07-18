@@ -31,7 +31,8 @@ module OpenWeatherMap
   end
 
   def self.cities(city_names)
-    handle_response(OpenWeatherMapApi.fetch_cities(resolve_ids(city_names).join(',')), multiple: true)
+    handle_response(OpenWeatherMapApi.fetch_cities(resolve_ids(city_names).join(',')),
+                    multiple: true)
   end
 
   def self.nearby(lat, lon, count)
@@ -55,13 +56,21 @@ module OpenWeatherMap
   private_class_method def self.handle_response(response, multiple: false)
     case response.code
     when 200
-      multiple ? parse_list(response.parsed_response) : OpenWeatherMap::City.parse(response.parsed_response)
+      handle_ok_response(response, multiple: multiple)
     when 401
       raise 'Invalid API key'
     when 404
       nil
     else
       raise "Unexpected response code: #{response.code}"
+    end
+  end
+
+  private_class_method def self.handle_ok_response(response, multiple: false)
+    if multiple
+      parse_list(response.parsed_response)
+    else
+      OpenWeatherMap::City.parse(response.parsed_response)
     end
   end
 end
