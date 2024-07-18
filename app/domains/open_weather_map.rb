@@ -2,14 +2,6 @@ module OpenWeatherMap
   module OpenWeatherMapApi
     URL = 'https://api.openweathermap.org/data/2.5/'
 
-    private_class_method def self.appid
-      Rails.application.credentials.open_weather_map_api_key
-    end
-
-    private_class_method def self.get(city_params)
-      HTTParty.get("#{URL}#{city_params}&appid=#{appid}")
-    end
-
     def self.fetch_city(city_id)
       get("weather?id=#{city_id}")
     end
@@ -20,6 +12,14 @@ module OpenWeatherMap
 
     def self.fetch_nearby(lat, lon, count)
       get("find?lat=#{lat}&lon=#{lon}&cnt=#{count}")
+    end
+
+    private_class_method def self.appid
+      Rails.application.credentials.open_weather_map_api_key
+    end
+
+    private_class_method def self.get(city_params)
+      HTTParty.get("#{URL}#{city_params}&appid=#{appid}")
     end
   end
 

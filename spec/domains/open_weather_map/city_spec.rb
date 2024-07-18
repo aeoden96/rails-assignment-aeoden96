@@ -2,12 +2,20 @@ require 'rails_helper'
 require 'open_weather_map/city'
 
 RSpec.describe OpenWeatherMap::City do
-  zagreb = described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Zagreb', temp_k: 300)
-  zagreb2 = described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Zagreb',
-                                temp_k: 300)
-  samobor = described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Samobor',
-                                temp_k: 200)
-  sisak = described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Sisak', temp_k: 300)
+  let(:zagreb) do
+    described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Zagreb', temp_k: 300)
+  end
+  let(:zagreb2) do
+    described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Zagreb',
+                        temp_k: 300)
+  end
+  let(:samobor) do
+    described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Samobor',
+                        temp_k: 200)
+  end
+  let(:sisak) do
+    described_class.new(id: 1234, lat: 89.312, lon: 12.123, name: 'Sisak', temp_k: 300)
+  end
 
   res = {
     'id' => 1234,
