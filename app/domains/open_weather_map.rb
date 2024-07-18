@@ -1,8 +1,4 @@
-# frozen_string_literal: true
-
-# Description: This module is responsible for fetching the weather data from the OpenWeatherMap API.
 module OpenWeatherMap
-  # Description: This module is responsible for fetching the weather data from the OpenWeatherMap API.
   module OpenWeatherMapApi
     URL = 'https://api.openweathermap.org/data/2.5/'
 

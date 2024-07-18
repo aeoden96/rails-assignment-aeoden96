@@ -1,5 +1,4 @@
 module OpenWeatherMap
-  # City class
   class City
     attr_reader :id, :lat, :lon, :name
 
