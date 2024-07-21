@@ -25,6 +25,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'httparty'
 # Use PG as the database for Active Record
 gem 'pg'
+gem 'blueprinter'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
