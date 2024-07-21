@@ -1,14 +1,14 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: UserSerializer.render(User.all, view: :include_associations)
+      render json: UserSerializer.render(User.all, view: :include_associations, root: :users)
     end
 
     def show
       user = User.find(params[:id])
 
       if user
-        render json: UserSerializer.render(user, view: :include_associations)
+        render json: UserSerializer.render(user, view: :include_associations, root: :user)
       else
         render json: { errors: 'User not found' }, status: :not_found
       end
@@ -18,7 +18,7 @@ module Api
       user = User.new(user_params)
 
       if user.save
-        render json: UserSerializer.render(user), status: :created
+        render json: UserSerializer.render(user, root: :user), status: :created
       else
         render json: { errors: user.errors }, status: :bad_request
       end
@@ -28,7 +28,7 @@ module Api
       user = User.find(params[:id])
 
       if user.update(user_params)
-        render json: UserSerializer.render(user)
+        render json: UserSerializer.render(user, root: :user)
       else
         render json: { errors: user.errors }, status: :bad_request
       end

@@ -1,20 +1,21 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: CompanySerializer.render(Company.all, view: :include_associations)
+      render json: CompanySerializer.render(Company.all, view: :include_associations,
+                                                         root: :companies)
     end
 
     def show
       company = Company.find(params[:id])
 
-      render json: CompanySerializer.render(company, view: :include_associations)
+      render json: CompanySerializer.render(company, view: :include_associations, root: :company)
     end
 
     def create
       company = Company.new(company_params)
 
       if company.save
-        render json: CompanySerializer.render(company), status: :created
+        render json: CompanySerializer.render(company, root: :company), status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -24,7 +25,7 @@ module Api
       company = Company.find(params[:id])
 
       if company.update(company_params)
-        render json: CompanySerializer.render(company)
+        render json: CompanySerializer.render(company, root: :company)
       else
         render json: { errors: company.errors }, status: :bad_request
       end
