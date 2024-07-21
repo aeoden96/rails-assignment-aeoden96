@@ -12,5 +12,7 @@ class CreateFlights < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
+
+    add_index :flights, [:name, :company_id], unique: true
   end
 end
