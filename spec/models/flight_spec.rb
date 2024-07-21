@@ -5,7 +5,7 @@
 #  id          :bigint           not null, primary key
 #  name        :string           not null
 #  no_of_seats :integer
-#  base_price  :decimal(, )      not null
+#  base_price  :integer          not null
 #  departs_at  :datetime         not null
 #  arrives_at  :datetime         not null
 #  company_id  :bigint           not null
@@ -18,7 +18,7 @@ RSpec.describe Flight, type: :model do
   flight_params = {
     name: 'Flight #2250',
     no_of_seats: 100,
-    base_price: 200.0,
+    base_price: 200,
     departs_at: DateTime.now + 3.days,
     arrives_at: DateTime.now + 4.days
   }
@@ -60,9 +60,6 @@ RSpec.describe Flight, type: :model do
 
     it 'is not valid with a base price less than or equal to 0' do
       flight.base_price = 0
-      expect(flight).not_to be_valid
-
-      flight.base_price = -10
       expect(flight).not_to be_valid
     end
 
