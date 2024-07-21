@@ -1,13 +1,13 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: CompanySerializer.render(Company.all)
+      render json: CompanySerializer.render(Company.all, view: :include_associations)
     end
 
     def show
       company = Company.find(params[:id])
 
-      render json: CompanySerializer.render(company)
+      render json: CompanySerializer.render(company, view: :include_associations)
     end
 
     def create
@@ -34,7 +34,7 @@ module Api
       company = Company.find(params[:id])
       company.destroy
 
-      render json: CompanySerializer.render(company)
+      render json: { message: 'Company deleted' }, status: :no_content
     end
 
     def company_params

@@ -1,13 +1,13 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: BookingSerializer.render(Booking.all)
+      render json: BookingSerializer.render(Booking.all, view: :include_associations)
     end
 
     def show
       booking = Booking.find(params[:id])
 
-      render json: BookingSerializer.render(booking)
+      render json: BookingSerializer.render(booking, view: :include_associations)
     end
 
     def create
@@ -34,7 +34,7 @@ module Api
       booking = Booking.find(params[:id])
       booking.destroy
 
-      render json: BookingSerializer.render(booking)
+      render json: { message: 'Booking deleted' }, status: :no_content
     end
 
     def booking_params

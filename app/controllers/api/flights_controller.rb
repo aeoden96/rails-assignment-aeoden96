@@ -1,13 +1,13 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: FlightSerializer.render(Flight.all)
+      render json: FlightSerializer.render(Flight.all, view: :include_associations)
     end
 
     def show
       flight = Flight.find(params[:id])
 
-      render json: FlightSerializer.render(flight)
+      render json: FlightSerializer.render(flight, view: :include_associations)
     end
 
     def create
@@ -34,7 +34,7 @@ module Api
       flight = Flight.find(params[:id])
       flight.destroy
 
-      render json: FlightSerializer.render(flight)
+      render json: { message: 'Flight deleted' }, status: :no_content
     end
 
     def flight_params
