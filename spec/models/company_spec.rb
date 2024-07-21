@@ -26,6 +26,6 @@ RSpec.describe Company, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to have_many(:flight).dependent(:destroy) }
+    it { is_expected.to have_many(:flights).dependent(:destroy) }
   end
 end

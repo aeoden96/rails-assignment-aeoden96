@@ -74,7 +74,7 @@ RSpec.describe Flight, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:company) }
-    it { is_expected.to have_many(:booking) }
-    it { is_expected.to have_many(:user).through(:booking) }
+    it { is_expected.to have_many(:bookings) }
+    it { is_expected.to have_many(:users).through(:bookings) }
   end
 end

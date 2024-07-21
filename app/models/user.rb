@@ -10,8 +10,8 @@
 #  updated_at :datetime         not null
 #
 class User < ApplicationRecord
-  has_many :booking, dependent: :destroy
-  has_many :flight, through: :booking
+  has_many :bookings, dependent: :destroy
+  has_many :flights, through: :bookings
 
   validates :email, presence: true, uniqueness: { case_sensitive: false },
                     format: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/

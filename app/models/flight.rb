@@ -15,8 +15,8 @@
 class Flight < ApplicationRecord
   belongs_to :company
 
-  has_many :booking, dependent: :destroy
-  has_many :user, through: :booking
+  has_many :bookings, dependent: :destroy
+  has_many :users, through: :bookings
 
   validates :name, presence: true, uniqueness: { case_sensitive: false, scope: :company_id }
 

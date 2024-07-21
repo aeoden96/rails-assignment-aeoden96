@@ -47,7 +47,7 @@ RSpec.describe User, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to have_many(:booking).dependent(:destroy) }
-    it { is_expected.to have_many(:flight).through(:booking) }
+    it { is_expected.to have_many(:bookings).dependent(:destroy) }
+    it { is_expected.to have_many(:flights).through(:bookings) }
   end
 end
