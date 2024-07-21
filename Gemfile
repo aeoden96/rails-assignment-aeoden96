@@ -30,6 +30,7 @@ gem 'pg'
 # gem 'image_processing', '~> 1.2'
 
 group :development, :test do
+  gem 'annotate'
   gem 'overcommit', require: false
   gem 'rspec-rails', '~> 6.1.0'
   gem 'rubocop', require: false
@@ -54,6 +55,7 @@ group :test do
   gem 'capybara', '>= 3.26'
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
+  gem 'shoulda-matchers'
   gem 'webdrivers'
 end
 
