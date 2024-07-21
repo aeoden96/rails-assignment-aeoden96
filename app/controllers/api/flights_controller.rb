@@ -14,7 +14,8 @@ module Api
       flight = Flight.new(flight_params)
 
       if flight.save
-        render json: FlightSerializer.render(flight, view: :include_associations, root: :flight), status: :created
+        render json: FlightSerializer.render(flight, view: :include_associations, root: :flight),
+               status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
