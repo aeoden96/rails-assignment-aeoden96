@@ -4,7 +4,7 @@
 #
 #  id          :bigint           not null, primary key
 #  no_of_seats :integer          not null
-#  seat_price  :decimal(, )      not null
+#  seat_price  :integer          not null
 #  user_id     :bigint           not null
 #  flight_id   :bigint           not null
 #  created_at  :datetime         not null
@@ -13,7 +13,7 @@
 require 'rails_helper'
 
 RSpec.describe Booking, type: :model do
-  booking_params = { no_of_seats: 2, seat_price: 150.0 }
+  booking_params = { no_of_seats: 2, seat_price: 150 }
   let(:user) { User.create(first_name: 'Marko', email: 'marko@gmail.com') }
   let(:booking) { described_class.new(booking_params.merge(user: user, flight: flight)) }
   let(:past_booking) { described_class.new(booking_params.merge(user: user, flight: past_flight)) }
