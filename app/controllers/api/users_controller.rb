@@ -24,6 +24,26 @@ module Api
       end
     end
 
+    def update
+      user = User.find(params[:id])
+
+      if user.update(user_params)
+        render json: UserSerializer.render(user)
+      else
+        render json: { errors: user.errors }, status: :bad_request
+      end
+    end
+
+    def destroy
+      user = User.find(params[:id])
+
+      if user.destroy
+        render json: UserSerializer.render(user)
+      else
+        render json: { errors: user.errors }, status: :bad_request
+      end
+    end
+
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email)
     end
