@@ -10,5 +10,17 @@ module TestHelpers
         'Accept': 'application/json'
       }
     end
+
+    def alternative_show_serializer_headers
+      {
+        'X-API-SERIALIZER': 'jsonapi'
+      }
+    end
+
+    def alternative_index_serializer_headers
+      {
+        'X-API-SERIALIZER-ROOT': '0'
+      }
+    end
   end
 end

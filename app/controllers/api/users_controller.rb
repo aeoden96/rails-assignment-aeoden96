@@ -1,14 +1,15 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: UserSerializer.render(User.all, view: :include_associations, root: :users)
+      render json: render_index_serializer(UserSerializer, User.all, :users)
     end
 
     def show
       user = User.find(params[:id])
 
       if user
-        render json: UserSerializer.render(user, view: :include_associations, root: :user)
+        render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
+        user, :user)
       else
         render json: { errors: 'User not found' }, status: :not_found
       end

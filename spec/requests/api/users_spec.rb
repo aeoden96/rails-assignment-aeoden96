@@ -15,6 +15,19 @@ RSpec.describe 'Companies API', type: :request do
       json_body = JSON.parse(response.body)
       expect(json_body['users'].size).to eq(3)
     end
+
+    it 'successfully returns a list of users without root' do
+      get '/api/users', headers: alternative_index_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a list of 3 users without root' do
+      get '/api/users', headers: alternative_index_serializer_headers
+
+      json_body = JSON.parse(response.body)
+      expect(json_body.size).to eq(3)
+    end
   end
 
   describe 'GET /users/:id' do
@@ -30,6 +43,23 @@ RSpec.describe 'Companies API', type: :request do
       json_body = JSON.parse(response.body)
 
       expect(json_body).to include('user')
+    end
+
+    it 'successfully returns a single user using jsonapi' do
+      get "/api/users/#{users.first.id}", headers: alternative_show_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a single user using jsonapi' do
+      get "/api/users/#{users.first.id}", headers: alternative_show_serializer_headers
+
+      json_body = JSON.parse(response.body)
+
+      expect(json_body).to include('data')
+      expect(json_body['data']).to include('id')
+      expect(json_body['data']).to include('relationships')
+      expect(json_body['data']).to include('type')
     end
   end
 

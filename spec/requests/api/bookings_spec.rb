@@ -17,6 +17,19 @@ RSpec.describe 'Bookings API', type: :request do
       json_body = JSON.parse(response.body)
       expect(json_body['bookings'].size).to eq(3)
     end
+
+    it 'successfully returns a list of bookings without root' do
+      get '/api/bookings', headers: alternative_index_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a list of 3 bookings without root' do
+      get '/api/bookings', headers: alternative_index_serializer_headers
+
+      json_body = JSON.parse(response.body)
+      expect(json_body.size).to eq(3)
+    end
   end
 
   describe 'GET /bookings/:id' do
@@ -32,6 +45,23 @@ RSpec.describe 'Bookings API', type: :request do
       json_body = JSON.parse(response.body)
 
       expect(json_body).to include('booking')
+    end
+
+    it 'successfully returns a single booking using jsonapi' do
+      get "/api/bookings/#{bookings.first.id}", headers: alternative_show_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a single booking using jsonapi' do
+      get "/api/bookings/#{bookings.first.id}", headers: alternative_show_serializer_headers
+
+      json_body = JSON.parse(response.body)
+
+      expect(json_body).to include('data')
+      expect(json_body['data']).to include('id')
+      expect(json_body['data']).to include('relationships')
+      expect(json_body['data']).to include('type')
     end
   end
 

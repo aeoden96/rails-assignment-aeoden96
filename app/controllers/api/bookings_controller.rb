@@ -1,14 +1,14 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: BookingSerializer.render(Booking.all, view: :include_associations,
-                                                         root: :bookings)
+      render json: render_index_serializer(BookingSerializer, Booking.all, :bookings)
     end
 
     def show
       booking = Booking.find(params[:id])
 
-      render json: BookingSerializer.render(booking, view: :include_associations, root: :booking)
+      render json: render_serializer_show(BookingSerializer, JsonapiSerializer::BookingSerializer,
+                                          booking, :booking)
     end
 
     def create

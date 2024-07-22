@@ -1,14 +1,14 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: CompanySerializer.render(Company.all, view: :include_associations,
-                                                         root: :companies)
+      render json: render_index_serializer(CompanySerializer, Company.all, :companies)
     end
 
     def show
       company = Company.find(params[:id])
 
-      render json: CompanySerializer.render(company, view: :include_associations, root: :company)
+      render json: render_serializer_show(CompanySerializer, JsonapiSerializer::CompanySerializer,
+                                          company, :company)
     end
 
     def create

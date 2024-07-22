@@ -1,13 +1,14 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: FlightSerializer.render(Flight.all, view: :include_associations, root: :flights)
+      render json: render_index_serializer(FlightSerializer, Flight.all, :flights)
     end
 
     def show
       flight = Flight.find(params[:id])
 
-      render json: FlightSerializer.render(flight, view: :include_associations, root: :flight)
+      render json: render_serializer_show(FlightSerializer, JsonapiSerializer::FlightSerializer,
+                                     flight, :flight)
     end
 
     def create

@@ -16,6 +16,19 @@ RSpec.describe 'Flights API', type: :request do
       json_body = JSON.parse(response.body)
       expect(json_body['flights'].size).to eq(3)
     end
+
+    it 'successfully returns a list of flights without root' do
+      get '/api/flights', headers: alternative_index_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a list of 3 flights without root' do
+      get '/api/flights', headers: alternative_index_serializer_headers
+
+      json_body = JSON.parse(response.body)
+      expect(json_body.size).to eq(3)
+    end
   end
 
   describe 'GET /flights/:id' do
@@ -31,6 +44,23 @@ RSpec.describe 'Flights API', type: :request do
       json_body = JSON.parse(response.body)
 
       expect(json_body).to include('flight')
+    end
+
+    it 'successfully returns a single flight using jsonapi' do
+      get "/api/flights/#{flights.first.id}", headers: alternative_show_serializer_headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a single flight using jsonapi' do
+      get "/api/flights/#{flights.first.id}", headers: alternative_show_serializer_headers
+
+      json_body = JSON.parse(response.body)
+
+      expect(json_body).to include('data')
+      expect(json_body['data']).to include('id')
+      expect(json_body['data']).to include('relationships')
+      expect(json_body['data']).to include('type')
     end
   end
 

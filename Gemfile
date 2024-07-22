@@ -25,6 +25,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'httparty'
 # Use PG as the database for Active Record
 gem 'blueprinter'
+gem 'jsonapi-serializer'
 gem 'pg'
 
 # Use Active Storage variant
