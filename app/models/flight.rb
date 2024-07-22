@@ -31,6 +31,4 @@ class Flight < ApplicationRecord
 
     errors.add(:departs_at, 'must be before arrives_at')
   end
-
-
 end
