@@ -28,7 +28,7 @@ RSpec.describe Booking, type: :model do
 
     it 'is not valid if the flight is in the past' do
       expect(past_booking).not_to be_valid
-      expect(past_booking.errors[:flight_id]).to include('must not be in the past')
+      expect(past_booking.errors[:flight]).to include('must not be in the past')
     end
   end
 
