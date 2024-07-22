@@ -12,37 +12,23 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  user_params = { first_name: 'Marko', email: 'marko@gmail.com' }
-
-  let(:user) { described_class.new(user_params) }
+  let(:user) { create(:user) }
 
   describe 'validations' do
-    it 'all attributes are valid' do
-      expect(user).to be_valid
-    end
-
-    it 'is not valid with a first name less than 2 characters' do
-      user.first_name = 'J'
-      expect(user).not_to be_valid
-    end
+    it { is_expected.to validate_presence_of(:first_name) }
+    it { is_expected.to validate_length_of(:first_name).is_at_least(2) }
 
     describe 'email' do
-      it 'is duplicated' do
-        described_class.create!(user_params)
-        expect(user).not_to be_valid
-      end
+      it { is_expected.to validate_presence_of(:email) }
+      it { is_expected.to allow_value('a@a.com').for(:email) }
+      it { is_expected.not_to allow_value('a@a').for(:email) }
+      it { is_expected.not_to allow_value('a.com').for(:email) }
+    end
 
-      it 'is not valid with an invalid email' do
-        email = 'some_text'
-        user.email = email
-        expect(user).not_to be_valid
-      end
+    describe 'email uniqueness' do
+      subject { create(:user) }
 
-      it 'is not valid with an an invalid email' do
-        email = 'text@.com'
-        user.email = email
-        expect(user).not_to be_valid
-      end
+      it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
     end
   end
 

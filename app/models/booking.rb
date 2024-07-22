@@ -19,10 +19,9 @@ class Booking < ApplicationRecord
   validate :flight_not_in_past
 
   def flight_not_in_past
-    unless flight.present? && flight.departs_at.present? && flight.departs_at < DateTime.current
-      return
-    end
+    return unless flight.present? && flight.departs_at.present?
+    return if flight.departs_at > DateTime.current
 
-    errors.add(:flight, 'must not be in the past')
+    errors.add(:flight_id, 'must not be in the past')
   end
 end
