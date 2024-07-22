@@ -8,7 +8,7 @@ module Api
       flight = Flight.find(params[:id])
 
       render json: render_serializer_show(FlightSerializer, JsonapiSerializer::FlightSerializer,
-                                     flight, :flight)
+                                          flight, :flight)
     end
 
     def create

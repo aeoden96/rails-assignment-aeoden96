@@ -9,7 +9,7 @@ module Api
 
       if user
         render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
-        user, :user)
+                                            user, :user)
       else
         render json: { errors: 'User not found' }, status: :not_found
       end
