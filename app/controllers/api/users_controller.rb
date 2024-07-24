@@ -16,22 +16,22 @@ module Api
     end
 
     def create
-      user = User.new(user_params)
-
-      if user.save
-        render json: UserSerializer.render(user, root: :user), status: :created
+      form = UserForm.new(user_params)
+      if form.save
+        render json: UserSerializer.render(form.user, root: :user), status: :created
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: form.errors }, status: :bad_request
       end
     end
 
     def update
       user = User.find(params[:id])
+      form = UserForm.new(user)
 
-      if user.update(user_params)
-        render json: UserSerializer.render(user, root: :user)
+      if form.update(user_params)
+        render json: UserSerializer.render(@form.user, root: :user)
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: @form.errors }, status: :bad_request
       end
     end
 

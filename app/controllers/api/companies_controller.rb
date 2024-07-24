@@ -12,12 +12,11 @@ module Api
     end
 
     def create
-      company = Company.new(company_params)
-
-      if company.save
-        render json: CompanySerializer.render(company, root: :company), status: :created
+      form = CompanyForm.new(company_params)
+      if form.save
+        render json: CompanySerializer.render(form.company, root: :company), status: :created
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: form.errors }, status: :bad_request
       end
     end
 
