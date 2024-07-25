@@ -19,6 +19,11 @@ default: &default
 
 development:
   <<: *default
+  database: academy-backend_development
 
 test:
+  <<: *default
+  database: academy-backend_test
+
+production:
   <<: *default
