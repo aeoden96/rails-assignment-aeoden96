@@ -35,7 +35,7 @@ module Api
       company = Company.find(params[:id])
       company.destroy
 
-      render json: { message: 'Company deleted' }, status: :no_content
+      head :no_content
     end
 
     def company_params

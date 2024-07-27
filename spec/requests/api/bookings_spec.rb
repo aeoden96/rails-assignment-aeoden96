@@ -18,17 +18,19 @@ RSpec.describe 'Bookings API', type: :request do
       expect(json_body['bookings'].size).to eq(3)
     end
 
-    it 'successfully returns a list of bookings without root' do
-      get '/api/bookings', headers: alternative_index_serializer_headers
+    context 'when header X-API-SERIALIZER-ROOT is false' do
+      it 'successfully returns a list of bookings without root' do
+        get '/api/bookings', headers: api_headers(root: '0')
 
-      expect(response).to have_http_status(:ok)
-    end
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns a list of 3 bookings without root' do
-      get '/api/bookings', headers: alternative_index_serializer_headers
+      it 'returns a list of 3 bookings without root' do
+        get '/api/bookings', headers: api_headers(root: '0')
 
-      json_body = JSON.parse(response.body)
-      expect(json_body.size).to eq(3)
+        json_body = JSON.parse(response.body)
+        expect(json_body.size).to eq(3)
+      end
     end
   end
 
@@ -47,21 +49,23 @@ RSpec.describe 'Bookings API', type: :request do
       expect(json_body).to include('booking')
     end
 
-    it 'successfully returns a single booking using jsonapi' do
-      get "/api/bookings/#{bookings.first.id}", headers: alternative_show_serializer_headers
+    describe 'when header X-API-SERIALIZER is jsonapi' do
+      it 'successfully returns a single booking using jsonapi' do
+        get "/api/bookings/#{bookings.first.id}", headers: api_headers(serializer: 'jsonapi')
 
-      expect(response).to have_http_status(:ok)
-    end
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns a single booking using jsonapi' do
-      get "/api/bookings/#{bookings.first.id}", headers: alternative_show_serializer_headers
+      it 'returns a single booking using jsonapi' do
+        get "/api/bookings/#{bookings.first.id}", headers: api_headers(serializer: 'jsonapi')
 
-      json_body = JSON.parse(response.body)
+        json_body = JSON.parse(response.body)
 
-      expect(json_body).to include('data')
-      expect(json_body['data']).to include('id')
-      expect(json_body['data']).to include('relationships')
-      expect(json_body['data']).to include('type')
+        expect(json_body).to include('data')
+        expect(json_body['data']).to include('id')
+        expect(json_body['data']).to include('relationships')
+        expect(json_body['data']).to include('type')
+      end
     end
   end
 
@@ -81,16 +85,16 @@ RSpec.describe 'Bookings API', type: :request do
       end
 
       it 'the number of records in the resource table is incremented by one' do
-        post '/api/bookings',
-             params: { booking: {
-               no_of_seats: 2,
-               seat_price: 150,
-               user_id: user.id,
-               flight_id: flight.id
-             } }.to_json,
-             headers: api_headers
-
-        expect(Booking.count).to eq(4)
+        expect do
+          post '/api/bookings',
+               params: { booking: {
+                 no_of_seats: 2,
+                 seat_price: 150,
+                 user_id: user.id,
+                 flight_id: flight.id
+               } }.to_json,
+               headers: api_headers
+        end.to change(Booking, :count).by(1)
       end
     end
 
@@ -146,9 +150,9 @@ RSpec.describe 'Bookings API', type: :request do
       end
 
       it 'the number of records in the resource table is decremented by one' do
-        delete "/api/bookings/#{bookings.first.id}"
-
-        expect(Booking.count).to eq(2)
+        expect do
+          delete "/api/bookings/#{bookings.first.id}"
+        end.to change(Booking, :count).by(-1)
       end
     end
   end

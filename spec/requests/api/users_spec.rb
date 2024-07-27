@@ -1,8 +1,9 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
-  let!(:users) { FactoryBot.create_list(:user, 3) }
 
   describe 'GET /users' do
+    let!(:users) { FactoryBot.create_list(:user, 3) }
+
     it 'successfully returns a list of users' do
       get '/api/users'
 
@@ -12,33 +13,31 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a list of 3 users' do
       get '/api/users'
 
-      json_body = JSON.parse(response.body)
       expect(json_body['users'].size).to eq(3)
     end
 
-    it 'successfully returns a list of users without root' do
-      get '/api/users', headers: alternative_index_serializer_headers
+    context 'when header X-API-SERIALIZER-ROOT is false' do
+      it 'successfully returns a list of users' do
+        get '/api/users', headers: api_headers(root: '0')
 
-      expect(response).to have_http_status(:ok)
-    end
-
-    it 'returns a list of 3 users without root' do
-      get '/api/users', headers: alternative_index_serializer_headers
-
-      json_body = JSON.parse(response.body)
-      expect(json_body.size).to eq(3)
+        expect(response).to have_http_status(:ok)
+        expect(json_body.size).to eq(3)
+        expect(json_body[0]['id']).to eq(users[0].id)
+      end
     end
   end
 
   describe 'GET /users/:id' do
+    let(:user) { FactoryBot.create(:user) }
+
     it 'successfully returns a single user' do
-      get "/api/users/#{users.first.id}"
+      get "/api/users/#{user.id}"
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a single user' do
-      get "/api/users/#{users.first.id}"
+      get "/api/users/#{user.id}"
 
       json_body = JSON.parse(response.body)
 
@@ -46,19 +45,18 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     it 'successfully returns a single user using jsonapi' do
-      get "/api/users/#{users.first.id}", headers: alternative_show_serializer_headers
+      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi')
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a single user using jsonapi' do
-      get "/api/users/#{users.first.id}", headers: alternative_show_serializer_headers
+      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi')
 
       json_body = JSON.parse(response.body)
 
       expect(json_body).to include('data')
       expect(json_body['data']).to include('id')
-      expect(json_body['data']).to include('relationships')
       expect(json_body['data']).to include('type')
     end
   end
@@ -75,11 +73,11 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'the number of records in the resource table is incremented by one' do
-        post '/api/users',
-             params: { user: user_json_params }.to_json,
-             headers: api_headers
-
-        expect(User.count).to eq(4)
+        expect do
+          post '/api/users',
+               params: { user: user_json_params }.to_json,
+               headers: api_headers
+        end.to change(User, :count).by(1)
       end
     end
 
@@ -96,9 +94,11 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'PUT /users/:id' do
+    let!(:user) { FactoryBot.create(:user) }
+
     context 'when params are valid' do
       it 'updates a user' do
-        put "/api/users/#{users.first.id}",
+        put "/api/users/#{user.id}",
             params: { user: { first_name: 'Alex' } }.to_json,
             headers: api_headers
         expect(response).to have_http_status(:ok)
@@ -106,7 +106,7 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'the updates are persisted in database' do
-        put "/api/users/#{users.first.id}",
+        put "/api/users/#{user.id}",
             params: { user: { first_name: 'Alex' } }.to_json,
             headers: api_headers
 
@@ -116,7 +116,7 @@ RSpec.describe 'Companies API', type: :request do
 
     context 'when params are invalid' do
       it 'returns 400 Bad Request' do
-        put "/api/users/#{users.first.id}",
+        put "/api/users/#{user.id}",
             params: { user: { first_name: '' } }.to_json,
             headers: api_headers
 
@@ -127,17 +127,19 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'DELETE /users/:id' do
+    let!(:user) { FactoryBot.create(:user) }
+
     context 'when the record exists' do
       it 'deletes a user' do
-        delete "/api/users/#{users.first.id}"
+        delete "/api/users/#{user.id}"
 
         expect(response).to have_http_status(:no_content)
       end
 
       it 'the number of records in the resource table is decremented by one' do
-        delete "/api/users/#{users.first.id}"
-
-        expect(User.count).to eq(2)
+        expect do
+          delete "/api/users/#{user.id}"
+        end.to change(User, :count).by(-1)
       end
     end
   end

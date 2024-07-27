@@ -7,12 +7,8 @@ module Api
     def show
       user = User.find(params[:id])
 
-      if user
-        render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
-                                            user, :user)
-      else
-        render json: { errors: 'User not found' }, status: :not_found
-      end
+      render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
+                                          user, :user)
     end
 
     def create
@@ -37,9 +33,9 @@ module Api
 
     def destroy
       user = User.find(params[:id])
-
       user.destroy
-      render json: { message: 'User deleted' }, status: :no_content
+
+      head :no_content
     end
 
     def user_params

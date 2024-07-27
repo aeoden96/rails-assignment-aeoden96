@@ -3,8 +3,6 @@ class BookingSerializer < Blueprinter::Base
 
   fields :no_of_seats, :seat_price, :created_at, :updated_at
 
-  view :include_associations do
-    association :user, blueprint: UserSerializer
-    association :flight, blueprint: FlightSerializer
-  end
+  association :user, blueprint: UserSerializer
+  association :flight, blueprint: FlightSerializer
 end

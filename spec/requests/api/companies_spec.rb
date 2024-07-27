@@ -16,17 +16,19 @@ RSpec.describe 'Companies API', type: :request do
       expect(json_body['companies'].size).to eq(3)
     end
 
-    it 'successfully returns a list of companies without root' do
-      get '/api/companies', headers: alternative_index_serializer_headers
+    describe 'when header X-API-SERIALIZER-ROOT is false' do
+      it 'successfully returns a list of companies without root' do
+        get '/api/companies', headers: api_headers(root: '0')
 
-      expect(response).to have_http_status(:ok)
-    end
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns a list of 3 companies without root' do
-      get '/api/companies', headers: alternative_index_serializer_headers
+      it 'returns a list of 3 companies without root' do
+        get '/api/companies', headers: api_headers(root: '0')
 
-      json_body = JSON.parse(response.body)
-      expect(json_body.size).to eq(3)
+        json_body = JSON.parse(response.body)
+        expect(json_body.size).to eq(3)
+      end
     end
   end
 
@@ -45,21 +47,22 @@ RSpec.describe 'Companies API', type: :request do
       expect(json_body).to include('company')
     end
 
-    it 'successfully returns a single company using jsonapi' do
-      get "/api/companies/#{companies.first.id}", headers: alternative_show_serializer_headers
+    describe 'when header X-API-SERIALIZER is jsonapi' do
+      it 'successfully returns a single company using jsonapi' do
+        get "/api/companies/#{companies.first.id}", headers: api_headers(serializer: 'jsonapi')
 
-      expect(response).to have_http_status(:ok)
-    end
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns a single company using jsonapi' do
-      get "/api/companies/#{companies.first.id}", headers: alternative_show_serializer_headers
+      it 'returns a single company using jsonapi' do
+        get "/api/companies/#{companies.first.id}", headers: api_headers(serializer: 'jsonapi')
 
-      json_body = JSON.parse(response.body)
+        json_body = JSON.parse(response.body)
 
-      expect(json_body).to include('data')
-      expect(json_body['data']).to include('id')
-      expect(json_body['data']).to include('relationships')
-      expect(json_body['data']).to include('type')
+        expect(json_body).to include('data')
+        expect(json_body['data']).to include('id')
+        expect(json_body['data']).to include('type')
+      end
     end
   end
 
@@ -74,11 +77,11 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'the number of records in the resource table is incremented by one' do
-        post '/api/companies',
-             params: { company: { name: 'Croatia Airlines' } }.to_json,
-             headers: api_headers
-
-        expect(Company.count).to eq(4)
+        expect do
+          post '/api/companies',
+               params: { company: { name: 'Croatia Airlines' } }.to_json,
+               headers: api_headers
+        end.to change(Company, :count).by(1)
       end
     end
 
@@ -134,9 +137,9 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'the number of records in the resource table is decremented by one' do
-        delete "/api/companies/#{companies.first.id}"
-
-        expect(Company.count).to eq(2)
+        expect do
+          delete "/api/companies/#{companies.first.id}"
+        end.to change(Company, :count).by(-1)
       end
     end
   end

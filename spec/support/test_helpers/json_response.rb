@@ -4,22 +4,12 @@ module TestHelpers
       JSON.parse(response.body)
     end
 
-    def api_headers
+    def api_headers(root: '1', serializer: nil)
       {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    end
-
-    def alternative_show_serializer_headers
-      {
-        'X-API-SERIALIZER': 'jsonapi'
-      }
-    end
-
-    def alternative_index_serializer_headers
-      {
-        'X-API-SERIALIZER-ROOT': '0'
+        'Accept': 'application/json',
+        'X-API-SERIALIZER-ROOT': root,
+        'X-API-SERIALIZER': serializer
       }
     end
   end
