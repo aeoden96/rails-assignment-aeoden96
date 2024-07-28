@@ -14,9 +14,9 @@ RSpec.describe 'Sessions API', type: :request do
                              headers: api_headers
 
         expect(response).to have_http_status(:created)
-        expect(json_body).to have_key('token')
-        expect(json_body).to have_key('user')
-        expect(json_body['user']['email']).to eq(user.email)
+        expect(json_body['session']).to have_key('token')
+        expect(json_body['session']).to have_key('user')
+        expect(json_body['session']['user']['email']).to eq(user.email)
       end
     end
 

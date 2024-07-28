@@ -56,7 +56,7 @@ module Api
       return unless @current_user.id != @current_booking.user_id && !@current_user.admin?
 
       render json: { errors: { resource: ['is forbidden'] } },
-             status: :unauthorized
+             status: :forbidden
     end
   end
 end
