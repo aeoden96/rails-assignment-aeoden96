@@ -54,7 +54,7 @@ module Api
     def authorize_action!
       return unless @current_user.id != params[:id].to_i && !@current_user.admin?
 
-      render json: { errors: { token: ['is forbidden'] } },
+      render json: { errors: { resource: ['is forbidden'] } },
              status: :forbidden
     end
   end

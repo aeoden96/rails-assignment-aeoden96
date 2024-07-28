@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
     @current_user = User.find_by(token: token)
     return if @current_user&.admin?
 
-    render json: { errors: { token: ['is invalid'] } },
+    render json: { errors: { resource: ['is forbidden'] } },
            status: :forbidden
   end
 

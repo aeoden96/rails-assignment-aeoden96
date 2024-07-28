@@ -1,6 +1,7 @@
 module Api
   class FlightsController < ApplicationController
-    before_action :authenticate_admin!, only: %i[create update destroy]
+    before_action :authenticate_user!, only: [:create, :update, :destroy]
+    before_action :authenticate_admin!, only: [:create, :update, :destroy]
 
     def index
       render json: render_index_serializer(FlightSerializer, Flight.all, :flights)
