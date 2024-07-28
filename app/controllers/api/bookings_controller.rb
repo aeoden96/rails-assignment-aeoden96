@@ -5,7 +5,7 @@ module Api
     before_action :authorize_action!, only: %i[update]
 
     def index
-      render json: render_index_serializer(BookingSerializer, Booking.all, :bookings)
+      render json: render_index_serializer(BookingSerializer, @current_user.bookings, :bookings)
     end
 
     def show
