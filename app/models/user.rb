@@ -24,8 +24,13 @@ class User < ApplicationRecord
   validates :first_name, presence: true, length: { minimum: 2 }
   validates :password, presence: true, on: :create
   validates :token, uniqueness: true
-  validate :password_not_blank, on: :update
   validates :role, inclusion: { in: %w[admin] }, allow_nil: true
+  validate :password_not_blank, on: :update
+  validate :only_admin_can_change_role, on: :update
+
+  def admin?
+    role == 'admin'
+  end
 
   # Instance method to login user and generate a new token
   def login
@@ -44,5 +49,11 @@ class User < ApplicationRecord
     return unless password_digest_changed? && (password.nil? || password.blank?)
 
     errors.add(:password, "can't be blank")
+  end
+
+  def only_admin_can_change_role
+    return unless role_changed? && !admin?
+
+    errors.add(:role, 'Only admin can change role')
   end
 end

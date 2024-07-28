@@ -1,16 +1,22 @@
 module Api
   class UsersController < ApplicationController
-    before_action :authenticate_user!, except: [:create]
+    before_action :authenticate_user!, except: [:create, :index]
+    before_action :authenticate_admin!, only: [:index]
 
     def index
       render json: render_index_serializer(UserSerializer, User.all, :users)
     end
 
     def show
-      user = User.find(params[:id])
-
-      render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
-                                          user, :user)
+      # handle the case where the user is admin
+      if !current_user.admin?
+        render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
+                                            @current_user, :user)
+      else
+        user = User.find(params[:id])
+        render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
+                                            user, :user)
+      end
     end
 
     def create
@@ -41,7 +47,7 @@ module Api
     end
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password)
+      params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
     end
   end
 end

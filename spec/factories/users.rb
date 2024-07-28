@@ -18,5 +18,6 @@ FactoryBot.define do
     first_name { 'John' }
     last_name { 'Doe' }
     password { 'password' }
+    role { nil }
   end
 end

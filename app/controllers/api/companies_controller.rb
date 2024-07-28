@@ -1,5 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
+    before_action :authenticate_admin!, only: %i[create update destroy]
+
     def index
       render json: render_index_serializer(CompanySerializer, Company.all, :companies)
     end

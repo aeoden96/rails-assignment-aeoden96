@@ -26,7 +26,19 @@ class ApplicationController < ActionController::Base
   def authenticate_user!
     token = request.headers['Authorization']
     @current_user = User.find_by(token: token)
-    render json: { errors: { token: ['is invalid'] } }, status: :unauthorized unless @current_user
+    return if @current_user
+
+    render json: { errors: { token: ['is invalid'] } },
+           status: :unauthorized
+  end
+
+  def authenticate_admin!
+    token = request.headers['Authorization']
+    @current_user = User.find_by(token: token)
+    return if @current_user&.admin?
+
+    render json: { errors: { token: ['is invalid'] } },
+           status: :unauthorized
   end
 
   attr_reader :current_user

@@ -3,29 +3,30 @@ RSpec.describe 'Companies API', type: :request do
 
   describe 'GET /users' do
     let!(:users) { FactoryBot.create_list(:user, 3) }
+    let(:admin) { FactoryBot.create(:user, role: 'admin') }
 
     before do
       users.first.login
     end
 
     it 'successfully returns a list of users' do
-      get '/api/users', headers: api_headers(token: users.first.token)
+      get '/api/users', headers: api_headers(token: admin.token)
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a list of 3 users' do
-      get '/api/users', headers: api_headers(token: users.first.token)
+      get '/api/users', headers: api_headers(token: admin.token)
 
-      expect(json_body['users'].size).to eq(3)
+      expect(json_body['users'].size).to eq(4)
     end
 
     context 'when header X-API-SERIALIZER-ROOT is false' do
       it 'successfully returns a list of users' do
-        get '/api/users', headers: api_headers(root: '0', token: users.first.token)
+        get '/api/users', headers: api_headers(root: '0', token: admin.token)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body.size).to eq(3)
+        expect(json_body.size).to eq(4)
       end
     end
   end

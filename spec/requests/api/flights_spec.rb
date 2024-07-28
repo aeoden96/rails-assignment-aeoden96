@@ -2,6 +2,7 @@ RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
   let!(:flights) { FactoryBot.create_list(:flight, 3) }
   let(:company) { FactoryBot.create(:company) }
+  let(:admin) { FactoryBot.create(:user, role: 'admin') }
 
   describe 'GET /flights' do
     it 'successfully returns a list of flights' do
@@ -82,7 +83,7 @@ RSpec.describe 'Flights API', type: :request do
                **json_params,
                company_id: company.id
              } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(json_body['flight']).to include('no_of_seats' => 2)
       end
@@ -94,7 +95,7 @@ RSpec.describe 'Flights API', type: :request do
                  **json_params,
                  company_id: company.id
                } }.to_json,
-               headers: api_headers
+               headers: api_headers(token: admin.token)
         end.to change(Flight, :count).by(1)
       end
     end
@@ -103,7 +104,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/flights',
              params: { flight: { no_of_seats: 0 } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
@@ -116,7 +117,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'updates a flight' do
         put "/api/flights/#{flights.first.id}",
             params: { flight: { no_of_seats: 200 } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
         expect(response).to have_http_status(:ok)
         expect(json_body['flight']).to include('no_of_seats' => 200)
       end
@@ -124,7 +125,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'the updates are persisted in database' do
         put "/api/flights/#{flights.first.id}",
             params: { flight: { no_of_seats: 200 } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(Flight.first.no_of_seats).to eq(200)
       end
@@ -134,7 +135,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         put "/api/flights/#{flights.first.id}",
             params: { flight: { no_of_seats: 0 } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
@@ -145,14 +146,14 @@ RSpec.describe 'Flights API', type: :request do
   describe 'DELETE /flights/:id' do
     context 'when the record exists' do
       it 'deletes a flight' do
-        delete "/api/flights/#{flights.first.id}"
+        delete "/api/flights/#{flights.first.id}", headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:no_content)
       end
 
       it 'the number of records in the resource table is decremented by one' do
         expect do
-          delete "/api/flights/#{flights.first.id}"
+          delete "/api/flights/#{flights.first.id}", headers: api_headers(token: admin.token)
         end.to change(Flight, :count).by(-1)
       end
     end

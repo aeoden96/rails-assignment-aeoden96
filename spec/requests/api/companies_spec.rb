@@ -1,6 +1,7 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
   let!(:companies) { FactoryBot.create_list(:company, 3) }
+  let(:admin) { FactoryBot.create(:user, role: 'admin') }
 
   describe 'GET /companies' do
     it 'successfully returns a list of companies' do
@@ -71,7 +72,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'creates a company' do
         post '/api/companies',
              params: { company: { name: 'Croatia Airlines' } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(json_body['company']).to include('name' => 'Croatia Airlines')
       end
@@ -80,7 +81,7 @@ RSpec.describe 'Companies API', type: :request do
         expect do
           post '/api/companies',
                params: { company: { name: 'Croatia Airlines' } }.to_json,
-               headers: api_headers
+               headers: api_headers(token: admin.token)
         end.to change(Company, :count).by(1)
       end
     end
@@ -89,7 +90,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/companies',
              params: { company: { name: '' } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -102,7 +103,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'updates a company' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: 'Bulgaria Air' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
         expect(response).to have_http_status(:ok)
         expect(json_body['company']).to include('name' => 'Bulgaria Air')
       end
@@ -110,7 +111,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'the updates are persisted in database' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: 'Bulgaria Air' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(Company.first.name).to eq('Bulgaria Air')
       end
@@ -120,7 +121,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: '' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -131,14 +132,14 @@ RSpec.describe 'Companies API', type: :request do
   describe 'DELETE /companies/:id' do
     context 'when the record exists' do
       it 'deletes a company' do
-        delete "/api/companies/#{companies.first.id}"
+        delete "/api/companies/#{companies.first.id}", headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:no_content)
       end
 
       it 'the number of records in the resource table is decremented by one' do
         expect do
-          delete "/api/companies/#{companies.first.id}"
+          delete "/api/companies/#{companies.first.id}", headers: api_headers(token: admin.token)
         end.to change(Company, :count).by(-1)
       end
     end
