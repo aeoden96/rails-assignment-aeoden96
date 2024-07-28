@@ -4,7 +4,7 @@ module Api
       user = User.find_by(email: session_params[:email])
 
       if user&.authenticate(session_params[:password])
-        render json: SessionSerializer.render({ user: user, token: user.login })
+        render json: SessionSerializer.render({ user: user, token: user.login, root: :session }), status: :created
       else
         render json: { error: { credentials: ['are invalid'] } }, status: :unauthorized
       end
