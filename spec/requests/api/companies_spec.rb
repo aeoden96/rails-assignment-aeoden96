@@ -2,6 +2,7 @@ RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
   let!(:companies) { FactoryBot.create_list(:company, 3) }
   let(:admin) { FactoryBot.create(:user, role: 'admin') }
+  let(:user) { FactoryBot.create(:user) }
 
   describe 'GET /companies' do
     it 'successfully returns a list of companies' do
@@ -68,7 +69,26 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'POST /companies/:id' do
-    context 'when params are valid' do
+    context 'when user is unauthenticated' do
+      it 'returns 401 Unauthorized' do
+        post '/api/companies',
+             params: { company: { name: 'Croatia Airlines' } }.to_json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated but not authorized' do
+      it 'returns 403 Forbidden' do
+        post '/api/companies',
+             params: { company: { name: 'Croatia Airlines' } }.to_json,
+             headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is authorized and params are valid' do
       it 'creates a company' do
         post '/api/companies',
              params: { company: { name: 'Croatia Airlines' } }.to_json,
@@ -86,7 +106,7 @@ RSpec.describe 'Companies API', type: :request do
       end
     end
 
-    context 'when params are invalid' do
+    context 'when user is authorized and params are invalid' do
       it 'returns 400 Bad Request' do
         post '/api/companies',
              params: { company: { name: '' } }.to_json,

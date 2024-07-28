@@ -2,6 +2,7 @@ module Api
   class UsersController < ApplicationController
     before_action :authenticate_user!, except: [:create, :index]
     before_action :authenticate_admin!, only: [:index]
+    before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index
       render json: render_index_serializer(UserSerializer, User.all, :users)
@@ -48,6 +49,13 @@ module Api
 
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
+    end
+
+    def authorize_action!
+      return unless @current_user.id != params[:id].to_i && !@current_user.admin?
+
+      render json: { errors: { token: ['is invalid'] } },
+             status: :unauthorized
     end
   end
 end

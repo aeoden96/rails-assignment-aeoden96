@@ -1,5 +1,6 @@
 module Api
   class CompaniesController < ApplicationController
+    before_action :authenticate_user!, only: %i[create update destroy]
     before_action :authenticate_admin!, only: %i[create update destroy]
 
     def index

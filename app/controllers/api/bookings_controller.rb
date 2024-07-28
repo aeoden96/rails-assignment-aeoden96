@@ -1,24 +1,23 @@
 module Api
   class BookingsController < ApplicationController
     before_action :authenticate_user!
-    before_action :set_current_booking, only: %i[update]
-    before_action :authorize_action!, only: %i[update]
+    before_action :set_current_booking, only: [:update, :destroy, :show]
+    before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index
-      render json: render_index_serializer(BookingSerializer, @current_user.bookings, :bookings)
+      render json: render_index_serializer(
+        BookingSerializer,
+        @current_user.admin? ? Booking.all : @current_user.bookings,
+        :bookings
+      )
     end
 
     def show
-      booking = Booking.find(params[:id])
-
       render json: render_serializer_show(BookingSerializer, JsonapiSerializer::BookingSerializer,
-                                          booking, :booking)
+                                          @current_booking, :booking)
     end
 
     def create
-      # if @current_user.id != booking_params[:user_id].to_i
-      #  render json: { errors: ['Not Authorized'] }, status: :unauthorized
-      # end
       booking = Booking.new(booking_params)
 
       if booking.save
@@ -30,18 +29,15 @@ module Api
     end
 
     def update
-      booking = Booking.find(params[:id])
-
-      if booking.update(booking_params)
-        render json: BookingSerializer.render(booking, root: :booking)
+      if @current_booking.update(booking_params)
+        render json: BookingSerializer.render(@current_booking, root: :booking)
       else
-        render json: { errors: booking.errors }, status: :bad_request
+        render json: { errors: @current_booking.errors }, status: :bad_request
       end
     end
 
     def destroy
-      booking = Booking.find(params[:id])
-      booking.destroy
+      @current_booking.destroy
 
       head :no_content
     end
@@ -57,7 +53,7 @@ module Api
     end
 
     def authorize_action!
-      return unless @current_user.id != @current_booking.user_id
+      return unless @current_user.id != @current_booking.user_id && !@current_user.admin?
 
       render json: { errors: { token: ['is invalid'] } },
              status: :unauthorized

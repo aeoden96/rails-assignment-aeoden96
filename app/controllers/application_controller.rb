@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
     return if @current_user&.admin?
 
     render json: { errors: { token: ['is invalid'] } },
-           status: :unauthorized
+           status: :forbidden
   end
 
   attr_reader :current_user

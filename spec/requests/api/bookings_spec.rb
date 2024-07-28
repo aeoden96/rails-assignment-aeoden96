@@ -5,24 +5,24 @@ RSpec.describe 'Bookings API', type: :request do
   let(:flight) { FactoryBot.create(:flight) }
 
   describe 'GET /bookings' do
-    before do
-      user.login
-    end
+    context 'when user is authorized and requests are valid' do
+      before do
+        user.login
+      end
 
-    it 'successfully returns a list of bookings' do
-      get '/api/bookings', headers: api_headers(token: user.token)
+      it 'successfully returns a list of bookings' do
+        get '/api/bookings', headers: api_headers(token: user.token)
 
-      expect(response).to have_http_status(:ok)
-    end
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns a list of 3 bookings' do
-      get '/api/bookings', headers: api_headers(token: user.token)
+      it 'returns a list of 3 bookings' do
+        get '/api/bookings', headers: api_headers(token: user.token)
 
-      json_body = JSON.parse(response.body)
-      expect(json_body['bookings'].size).to eq(3)
-    end
+        json_body = JSON.parse(response.body)
+        expect(json_body['bookings'].size).to eq(3)
+      end
 
-    context 'when header X-API-SERIALIZER-ROOT is false' do
       it 'successfully returns a list of bookings without root' do
         get '/api/bookings', headers: api_headers(root: '0', token: user.token)
 
@@ -34,6 +34,14 @@ RSpec.describe 'Bookings API', type: :request do
 
         json_body = JSON.parse(response.body)
         expect(json_body.size).to eq(3)
+      end
+    end
+
+    context 'when user is unauthenticated' do
+      it 'returns 401 Unauthorized' do
+        get '/api/bookings'
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
