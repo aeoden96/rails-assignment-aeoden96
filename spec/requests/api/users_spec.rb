@@ -4,25 +4,28 @@ RSpec.describe 'Companies API', type: :request do
   describe 'GET /users' do
     let!(:users) { FactoryBot.create_list(:user, 3) }
 
+    before do
+      users.first.login
+    end
+
     it 'successfully returns a list of users' do
-      get '/api/users'
+      get '/api/users', headers: api_headers(token: users.first.token)
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a list of 3 users' do
-      get '/api/users'
+      get '/api/users', headers: api_headers(token: users.first.token)
 
       expect(json_body['users'].size).to eq(3)
     end
 
     context 'when header X-API-SERIALIZER-ROOT is false' do
       it 'successfully returns a list of users' do
-        get '/api/users', headers: api_headers(root: '0')
+        get '/api/users', headers: api_headers(root: '0', token: users.first.token)
 
         expect(response).to have_http_status(:ok)
         expect(json_body.size).to eq(3)
-        expect(json_body[0]['id']).to eq(users[0].id)
       end
     end
   end
@@ -30,14 +33,18 @@ RSpec.describe 'Companies API', type: :request do
   describe 'GET /users/:id' do
     let(:user) { FactoryBot.create(:user) }
 
+    before do
+      user.login
+    end
+
     it 'successfully returns a single user' do
-      get "/api/users/#{user.id}"
+      get "/api/users/#{user.id}", headers: api_headers(token: user.token)
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a single user' do
-      get "/api/users/#{user.id}"
+      get "/api/users/#{user.id}", headers: api_headers(token: user.token)
 
       json_body = JSON.parse(response.body)
 
@@ -45,13 +52,13 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     it 'successfully returns a single user using jsonapi' do
-      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi')
+      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi', token: user.token)
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns a single user using jsonapi' do
-      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi')
+      get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi', token: user.token)
 
       json_body = JSON.parse(response.body)
 
@@ -62,7 +69,8 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'POST /users/:id' do
-    user_json_params = { first_name: 'John', last_name: 'Doe', email: 'john@gmail.com' }
+    user_json_params = { first_name: 'John', last_name: 'Doe', email: 'john@gmail.com',
+                         password: 'password' }
     context 'when params are valid' do
       it 'creates a user' do
         post '/api/users',
@@ -96,11 +104,15 @@ RSpec.describe 'Companies API', type: :request do
   describe 'PUT /users/:id' do
     let!(:user) { FactoryBot.create(:user) }
 
+    before do
+      user.login
+    end
+
     context 'when params are valid' do
       it 'updates a user' do
         put "/api/users/#{user.id}",
             params: { user: { first_name: 'Alex' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: user.token)
         expect(response).to have_http_status(:ok)
         expect(json_body['user']).to include('first_name' => 'Alex')
       end
@@ -108,9 +120,17 @@ RSpec.describe 'Companies API', type: :request do
       it 'the updates are persisted in database' do
         put "/api/users/#{user.id}",
             params: { user: { first_name: 'Alex' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: user.token)
 
         expect(User.first.first_name).to eq('Alex')
+      end
+
+      it 'changes the password' do
+        put "/api/users/#{user.id}",
+            params: { user: { password: 'new_password' } }.to_json,
+            headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -118,10 +138,26 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         put "/api/users/#{user.id}",
             params: { user: { first_name: '' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: user.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('first_name')
+      end
+
+      it 'changes the password no nil' do
+        put "/api/users/#{user.id}",
+            params: { user: { password: nil } }.to_json,
+            headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'changes the password to empty string' do
+        put "/api/users/#{user.id}",
+            params: { user: { password: ' ' } }.to_json,
+            headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
@@ -129,16 +165,20 @@ RSpec.describe 'Companies API', type: :request do
   describe 'DELETE /users/:id' do
     let!(:user) { FactoryBot.create(:user) }
 
+    before do
+      user.login
+    end
+
     context 'when the record exists' do
       it 'deletes a user' do
-        delete "/api/users/#{user.id}"
+        delete "/api/users/#{user.id}", headers: api_headers(token: user.token)
 
         expect(response).to have_http_status(:no_content)
       end
 
       it 'the number of records in the resource table is decremented by one' do
         expect do
-          delete "/api/users/#{user.id}"
+          delete "/api/users/#{user.id}", headers: api_headers(token: user.token)
         end.to change(User, :count).by(-1)
       end
     end

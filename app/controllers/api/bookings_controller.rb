@@ -1,5 +1,9 @@
 module Api
   class BookingsController < ApplicationController
+    before_action :authenticate_user!
+    before_action :set_current_booking, only: %i[update]
+    before_action :authorize_action!, only: %i[update]
+
     def index
       render json: render_index_serializer(BookingSerializer, Booking.all, :bookings)
     end
@@ -12,6 +16,9 @@ module Api
     end
 
     def create
+      # if @current_user.id != booking_params[:user_id].to_i
+      #  render json: { errors: ['Not Authorized'] }, status: :unauthorized
+      # end
       booking = Booking.new(booking_params)
 
       if booking.save
@@ -41,6 +48,19 @@ module Api
 
     def booking_params
       params.require(:booking).permit(:no_of_seats, :seat_price, :user_id, :flight_id)
+    end
+
+    private
+
+    def set_current_booking
+      @current_booking = Booking.find(params[:id])
+    end
+
+    def authorize_action!
+      return unless @current_user.id != @current_booking.user_id
+
+      render json: { errors: { token: ['is invalid'] } },
+             status: :unauthorized
     end
   end
 end

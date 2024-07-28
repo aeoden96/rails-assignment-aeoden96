@@ -22,4 +22,12 @@ class ApplicationController < ActionController::Base
       serializer.render(records, root: root)
     end
   end
+
+  def authenticate_user!
+    token = request.headers['Authorization']
+    @current_user = User.find_by(token: token)
+    render json: { errors: { token: ['is invalid'] } }, status: :unauthorized unless @current_user
+  end
+
+  attr_reader :current_user
 end

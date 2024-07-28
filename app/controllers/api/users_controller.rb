@@ -1,5 +1,7 @@
 module Api
   class UsersController < ApplicationController
+    before_action :authenticate_user!, except: [:create]
+
     def index
       render json: render_index_serializer(UserSerializer, User.all, :users)
     end
@@ -39,7 +41,7 @@ module Api
     end
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email)
+      params.require(:user).permit(:first_name, :last_name, :email, :password)
     end
   end
 end
