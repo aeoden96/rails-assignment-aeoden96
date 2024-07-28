@@ -13,7 +13,7 @@ RSpec.describe 'Sessions API', type: :request do
         }.to_json,
                              headers: api_headers
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
         expect(json_body).to have_key('token')
         expect(json_body).to have_key('user')
         expect(json_body['user']['email']).to eq(user.email)
