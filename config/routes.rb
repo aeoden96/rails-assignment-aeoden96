@@ -6,7 +6,7 @@ Rails.application.routes.draw do
     resources :companies, except: [:new, :edit]
     resources :flights, except: [:new, :edit]
     resources :bookings, except: [:new, :edit]
-    resources :sessions do
+    resources :session do
       post :create, on: :collection
       delete :destroy, on: :collection
     end
