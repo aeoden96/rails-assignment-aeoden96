@@ -29,6 +29,8 @@ module Api
     end
 
     def update
+      booking_params.delete(:user_id) unless @current_user.admin?
+
       if @current_booking.update(booking_params)
         render json: BookingSerializer.render(@current_booking, root: :booking)
       else
