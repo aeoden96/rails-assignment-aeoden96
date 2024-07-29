@@ -18,7 +18,7 @@ module Api
     end
 
     def create
-      booking = Booking.new(booking_params)
+      booking = Booking.new(booking_params.merge(user_id: @current_user.id))
 
       if booking.save
         render json: BookingSerializer.render(booking, root: :booking),
@@ -29,7 +29,9 @@ module Api
     end
 
     def update
-      booking_params.delete(:user_id) unless @current_user.admin?
+      if @current_user.admin? && booking_params[:user_id].present?
+        @current_booking.user_id = booking_params[:user_id]
+      end
 
       if @current_booking.update(booking_params)
         render json: BookingSerializer.render(@current_booking, root: :booking)

@@ -21,6 +21,11 @@ module Api
     end
 
     def create
+      token = request.headers['Authorization']
+      current_user = User.find_by(token: token)
+
+      user_params.delete(:role) if !current_user || !current_user.admin?
+
       user = User.new(user_params)
 
       if user.save
