@@ -1,6 +1,7 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
   let(:user) { FactoryBot.create(:user) }
+  let(:other_user) { FactoryBot.create(:user) }
   let!(:bookings) { FactoryBot.create_list(:booking, 3, user: user) }
   let(:flight) { FactoryBot.create(:flight) }
 
@@ -151,6 +152,14 @@ RSpec.describe 'Bookings API', type: :request do
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
+      end
+
+      it 'does not update the user if the user is not an admin' do
+        expect do
+          put "/api/bookings/#{bookings.first.id}",
+              params: { booking: { user_id: other_user.id } }.to_json,
+              headers: api_headers(token: user.token)
+        end.not_to(change { bookings.first.reload.user_id })
       end
     end
   end

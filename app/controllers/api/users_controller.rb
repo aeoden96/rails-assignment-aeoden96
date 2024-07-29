@@ -24,9 +24,8 @@ module Api
       token = request.headers['Authorization']
       current_user = User.find_by(token: token)
 
-      user_params.delete(:role) if !current_user || !current_user.admin?
-
-      user = User.new(user_params)
+      user = User.new(!current_user ||
+      !current_user.admin? ? user_params.except(:role) : user_params)
 
       if user.save
         render json: UserSerializer.render(user, root: :user), status: :created

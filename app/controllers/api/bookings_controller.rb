@@ -29,11 +29,8 @@ module Api
     end
 
     def update
-      if @current_user.admin? && booking_params[:user_id].present?
-        @current_booking.user_id = booking_params[:user_id]
-      end
-
-      if @current_booking.update(booking_params)
+      if @current_booking.update(!@current_user.admin? &&
+        booking_params[:user_id].present? ? booking_params.except(:user_id) : booking_params)
         render json: BookingSerializer.render(@current_booking, root: :booking)
       else
         render json: { errors: @current_booking.errors }, status: :bad_request
