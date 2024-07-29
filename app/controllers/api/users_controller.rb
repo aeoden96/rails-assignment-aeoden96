@@ -33,6 +33,11 @@ module Api
     def update
       user = User.find(params[:id])
 
+      if !current_user.admin? && user_params[:role]
+        render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
+        return
+      end
+
       if user.update(user_params)
         render json: UserSerializer.render(user, root: :user)
       else

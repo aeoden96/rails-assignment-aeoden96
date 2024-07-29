@@ -7,7 +7,7 @@ module Api
         render json: SessionSerializer.render({ user: user, token: user.login }, root: :session),
                status: :created
       else
-        render json: { error: { credentials: ['are invalid'] } }, status: :unauthorized
+        render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
       end
     end
 
@@ -15,9 +15,9 @@ module Api
       user = User.find_by(token: request.headers['Authorization'])
       if user
         user.logout
-        render json: { message: 'Logged out successfully' }
+        head :no_content
       else
-        render json: { error: 'Invalid token' }, status: :unauthorized
+        render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
       end
     end
 

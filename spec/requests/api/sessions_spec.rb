@@ -21,14 +21,14 @@ RSpec.describe 'Sessions API', type: :request do
     end
 
     context 'with invalid credentials' do
-      it 'returns unauthorized status' do
+      it 'returns bad_request status' do
         post '/api/session', params: {
           session: { email: user.email, password: 'invalid' }
         }.to_json,
                              headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_body).to have_key('error')
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body).to have_key('errors')
       end
     end
   end
@@ -43,8 +43,7 @@ RSpec.describe 'Sessions API', type: :request do
     context 'with valid token' do
       it 'logs out the user' do
         delete '/api/session', headers: api_headers(token: user.token)
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to have_key('message')
+        expect(response).to have_http_status(:no_content)
         expect(user.reload.token).to be_nil
       end
     end
@@ -53,7 +52,7 @@ RSpec.describe 'Sessions API', type: :request do
       it 'returns unauthorized status' do
         delete '/api/session', headers: api_headers(token: 'invalid')
         expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)).to have_key('error')
+        expect(json_body).to have_key('errors')
       end
     end
   end
