@@ -18,7 +18,7 @@ module Api
     end
 
     def create
-      booking = Booking.new(booking_params.merge(user_id: @current_user.id))
+      booking = Booking.new(create_params)
 
       if booking.save
         render json: BookingSerializer.render(booking, root: :booking),
@@ -29,8 +29,7 @@ module Api
     end
 
     def update
-      if @current_booking.update(!@current_user.admin? &&
-        booking_params[:user_id].present? ? booking_params.except(:user_id) : booking_params)
+      if @current_booking.update(update_params)
         render json: BookingSerializer.render(@current_booking, root: :booking)
       else
         render json: { errors: @current_booking.errors }, status: :bad_request
@@ -48,6 +47,19 @@ module Api
     end
 
     private
+
+    def create_params
+      @current_user.admin? ? booking_params : booking_params.merge(user_id: @current_user.id)
+    end
+
+    def update_params
+      if !@current_user.admin? &&
+         booking_params[:user_id].present?
+        booking_params.except(:user_id)
+      else
+        booking_params
+      end
+    end
 
     def set_current_booking
       @current_booking = Booking.find(params[:id])

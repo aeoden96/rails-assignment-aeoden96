@@ -9,7 +9,6 @@ module Api
     end
 
     def show
-      # handle the case where the user is admin
       if !current_user.admin?
         render json: render_serializer_show(UserSerializer, JsonapiSerializer::UserSerializer,
                                             @current_user, :user)
