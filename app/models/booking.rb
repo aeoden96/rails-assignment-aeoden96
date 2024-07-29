@@ -24,4 +24,8 @@ class Booking < ApplicationRecord
 
     errors.add(:flight, 'must not be in the past')
   end
+
+  scope :with_active_flights, lambda {
+    joins(:flight).merge(Flight.upcoming).distinct
+  }
 end

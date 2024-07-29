@@ -31,4 +31,8 @@ class Flight < ApplicationRecord
 
     errors.add(:departs_at, 'must be before arrives_at')
   end
+
+  scope :upcoming, lambda {
+    where('departs_at > ?', Time.current)
+  }
 end

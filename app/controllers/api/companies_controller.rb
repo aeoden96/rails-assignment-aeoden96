@@ -4,7 +4,9 @@ module Api
     before_action :authenticate_admin!, only: %i[create update destroy]
 
     def index
-      render json: render_index_serializer(CompanySerializer, Company.all, :companies)
+      # render json: render_index_serializer(CompanySerializer, Company.all, :companies)
+      companies = CompaniesQuery.new(params).call
+      render json: render_index_serializer(CompanySerializer, companies, :companies)
     end
 
     def show
@@ -42,7 +44,7 @@ module Api
     end
 
     def company_params
-      params.require(:company).permit(:name)
+      params.require(:company).permit(:name, :filter)
     end
   end
 end

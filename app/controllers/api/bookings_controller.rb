@@ -5,9 +5,10 @@ module Api
     before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index
+      bookings = BookingsQuery.new(params).call
       render json: render_index_serializer(
         BookingSerializer,
-        @current_user.admin? ? Booking.all : @current_user.bookings,
+        @current_user.admin? ? bookings : @current_user.bookings,
         :bookings
       )
     end
@@ -43,7 +44,7 @@ module Api
     end
 
     def booking_params
-      params.require(:booking).permit(:no_of_seats, :seat_price, :user_id, :flight_id)
+      params.require(:booking).permit(:no_of_seats, :seat_price, :user_id, :flight_id, :filter)
     end
 
     private
