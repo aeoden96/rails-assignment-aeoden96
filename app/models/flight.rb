@@ -24,6 +24,7 @@ class Flight < ApplicationRecord
   validates :base_price, presence: true, numericality: { greater_than: 0 }
   validates :no_of_seats, presence: true, numericality: { greater_than: 0 }
   validate :departs_at_before_arrives_at
+  validate :no_overlapping_flights
 
   def departs_at_before_arrives_at
     return unless departs_at.present? && arrives_at.present?
@@ -35,4 +36,22 @@ class Flight < ApplicationRecord
   scope :upcoming, lambda {
     where('departs_at > ?', Time.current)
   }
+
+  scope :same_company, lambda { |company_id|
+    where(company_id: company_id)
+  }
+
+  scope :not_overlapping, lambda { |flight|
+    where.not('departs_at < ? AND arrives_at > ?', flight.arrives_at, flight.departs_at)
+  }
+
+  def no_overlapping_flights
+    return unless company.present? && departs_at.present? && arrives_at.present?
+
+    overlapping_flights = Flight.same_company(company_id).not_overlapping(self)
+
+    return unless overlapping_flights.exists?
+
+    errors.add(:base, 'cannot overlap with another flight within the same company')
+  end
 end
