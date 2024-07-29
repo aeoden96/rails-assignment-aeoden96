@@ -44,7 +44,7 @@ RSpec.describe 'Sessions API', type: :request do
       it 'logs out the user' do
         delete '/api/session', headers: api_headers(token: user.token)
         expect(response).to have_http_status(:no_content)
-        expect(user.reload.token).to be_nil
+        expect(user.reload.token).not_to be_nil
       end
     end
 

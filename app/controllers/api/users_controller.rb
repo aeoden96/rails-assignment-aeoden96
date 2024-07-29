@@ -58,7 +58,7 @@ module Api
     end
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
+      params.require(:user).permit(:first_name, :last_name, :email, :password, :role, :token)
     end
 
     def authorize_action!

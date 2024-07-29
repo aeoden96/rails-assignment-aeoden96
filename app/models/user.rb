@@ -31,15 +31,12 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  # Instance method to login user and generate a new token
   def login
-    regenerate_token
     token
   end
 
-  # Instance method to logout user by invalidating the token
   def logout
-    update(token: nil)
+    regenerate_token
   end
 
   private
