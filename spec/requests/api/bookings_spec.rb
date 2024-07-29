@@ -129,18 +129,18 @@ RSpec.describe 'Bookings API', type: :request do
     context 'when params are valid' do
       it 'updates a booking' do
         put "/api/bookings/#{bookings.first.id}",
-            params: { booking: { no_of_seats: 200 } }.to_json,
+            params: { booking: { no_of_seats: 8 } }.to_json,
             headers: api_headers(token: user.token)
         expect(response).to have_http_status(:ok)
-        expect(json_body['booking']).to include('no_of_seats' => 200)
+        expect(json_body['booking']).to include('no_of_seats' => 8)
       end
 
       it 'the updates are persisted in database' do
         put "/api/bookings/#{bookings.first.id}",
-            params: { booking: { no_of_seats: 200 } }.to_json,
+            params: { booking: { no_of_seats: 8 } }.to_json,
             headers: api_headers(token: user.token)
 
-        expect(Booking.first.no_of_seats).to eq(200)
+        expect(Booking.first.no_of_seats).to eq(8)
       end
     end
 
