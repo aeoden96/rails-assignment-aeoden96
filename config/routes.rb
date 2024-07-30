@@ -10,6 +10,13 @@ Rails.application.routes.draw do
       post :create, on: :collection
       delete :destroy, on: :collection
     end
+
+    resources :statistics, only: [] do
+      collection do
+        get :flights, to: 'statistics#flights_index'
+        get :companies, to: 'statistics#companies_index'
+      end
+    end
   end
 
 end
