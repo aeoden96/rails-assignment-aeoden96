@@ -4,7 +4,7 @@ RSpec.describe 'Sessions API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'POST #create' do
-    let(:user) { create(:user, password: 'password123') }
+    let(:user) { create(:user, password: 'password123', token: 'token123') }
 
     context 'with valid credentials' do
       it 'returns a token' do
@@ -15,6 +15,7 @@ RSpec.describe 'Sessions API', type: :request do
 
         expect(response).to have_http_status(:created)
         expect(json_body['session']).to have_key('token')
+        expect(json_body['session']['token']).to eq(user.reload.token)
         expect(json_body['session']).to have_key('user')
         expect(json_body['session']['user']['email']).to eq(user.email)
       end
