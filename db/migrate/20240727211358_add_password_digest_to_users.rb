@@ -13,6 +13,7 @@ class AddPasswordDigestToUsers < ActiveRecord::Migration[6.1]
   def up
     add_column :users, :password_digest, :string
     change_password_on_existing_users
+    change_column :users, :password_digest, :string, null: false
   end
 
   def down

@@ -37,10 +37,6 @@ RSpec.describe 'Sessions API', type: :request do
   describe 'DELETE #destroy' do
     let(:user) { create(:user, password: 'password123') }
 
-    before do
-      user.login
-    end
-
     context 'with valid token' do
       it 'logs out the user' do
         delete '/api/session', headers: api_headers(token: user.token)

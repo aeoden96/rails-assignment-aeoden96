@@ -1,7 +1,7 @@
 module Api
   class UsersController < ApplicationController
     before_action :authenticate_user!, except: [:create]
-    before_action :authenticate_admin!, only: [:index]
+    before_action :authorize_admin!, only: [:index]
     before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index

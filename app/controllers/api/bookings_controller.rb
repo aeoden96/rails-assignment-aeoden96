@@ -66,7 +66,7 @@ module Api
     end
 
     def authorize_action!
-      return unless @current_user.id != @current_booking.user_id && !@current_user.admin?
+      return if @current_user.admin? || @current_user.id == @current_booking.user_id
 
       render json: { errors: { resource: ['is forbidden'] } },
              status: :forbidden

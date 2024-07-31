@@ -1,16 +1,20 @@
-RSpec.describe 'Companies API', type: :request do
+RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /users' do
-    let!(:users) { FactoryBot.create_list(:user, 3) }
+    # let!(:users) { FactoryBot.create_list(:user, 3) }
     let(:admin) { FactoryBot.create(:user, role: 'admin') }
+
+    before do
+      FactoryBot.create_list(:user, 3)
+    end
 
     context 'when user is authenticated and admin' do
       it 'successfully returns a list of users' do
         get '/api/users', headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['users'].size).to eq(users.size + 1)
+        expect(json_body['users'].size).to eq(4)
       end
     end
 
@@ -36,10 +40,6 @@ RSpec.describe 'Companies API', type: :request do
 
   describe 'GET /users/:id' do
     let(:user) { FactoryBot.create(:user) }
-
-    before do
-      user.login
-    end
 
     it 'successfully returns a single user' do
       get "/api/users/#{user.id}", headers: api_headers(token: user.token)
