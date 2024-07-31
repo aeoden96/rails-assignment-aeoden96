@@ -1,24 +1,31 @@
-RSpec.describe 'Companies API', type: :request do
+RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /users' do
-    let!(:users) { FactoryBot.create_list(:user, 3) }
+    # let!(:users) { FactoryBot.create_list(:user, 3) }
     let(:admin) { FactoryBot.create(:user, role: 'admin') }
 
     before do
-      users.first.login
+      FactoryBot.create_list(:user, 3)
     end
 
-    it 'successfully returns a list of users' do
-      get '/api/users', headers: api_headers(token: admin.token)
+    context 'when user is authenticated and admin' do
+      it 'successfully returns a list of users' do
+        get '/api/users', headers: api_headers(token: admin.token)
 
-      expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['users'].size).to eq(4)
+      end
     end
 
-    it 'returns a list of 3 users' do
-      get '/api/users', headers: api_headers(token: admin.token)
+    context 'when user is authenticated and not admin' do
+      let(:user) { FactoryBot.create(:user) }
 
-      expect(json_body['users'].size).to eq(4)
+      it 'returns 403 Forbidden' do
+        get '/api/users', headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
     context 'when header X-API-SERIALIZER-ROOT is false' do
@@ -34,10 +41,6 @@ RSpec.describe 'Companies API', type: :request do
   describe 'GET /users/:id' do
     let(:user) { FactoryBot.create(:user) }
 
-    before do
-      user.login
-    end
-
     it 'successfully returns a single user' do
       get "/api/users/#{user.id}", headers: api_headers(token: user.token)
 
@@ -46,8 +49,6 @@ RSpec.describe 'Companies API', type: :request do
 
     it 'returns a single user' do
       get "/api/users/#{user.id}", headers: api_headers(token: user.token)
-
-      json_body = JSON.parse(response.body)
 
       expect(json_body).to include('user')
     end
@@ -60,8 +61,6 @@ RSpec.describe 'Companies API', type: :request do
 
     it 'returns a single user using jsonapi' do
       get "/api/users/#{user.id}", headers: api_headers(serializer: 'jsonapi', token: user.token)
-
-      json_body = JSON.parse(response.body)
 
       expect(json_body).to include('data')
       expect(json_body['data']).to include('id')
@@ -90,6 +89,16 @@ RSpec.describe 'Companies API', type: :request do
       end
     end
 
+    context 'when user tries to create an admin' do
+      it 'creates a user' do
+        post '/api/users',
+             params: { user: user_json_params.merge(role: 'admin') }.to_json,
+             headers: api_headers
+
+        expect(json_body['user']).to include('role' => nil)
+      end
+    end
+
     context 'when params are invalid' do
       it 'returns 400 Bad Request' do
         post '/api/users',
@@ -105,11 +114,7 @@ RSpec.describe 'Companies API', type: :request do
   describe 'PUT /users/:id' do
     let!(:user) { FactoryBot.create(:user) }
 
-    before do
-      user.login
-    end
-
-    context 'when params are valid' do
+    context 'when user is authenticated and requests are valid' do
       it 'updates a user' do
         put "/api/users/#{user.id}",
             params: { user: { first_name: 'Alex' } }.to_json,
@@ -132,6 +137,40 @@ RSpec.describe 'Companies API', type: :request do
             headers: api_headers(token: user.token)
 
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when user is unauthenticated' do
+      it 'returns 401 Unauthorized' do
+        put "/api/users/#{user.id}",
+            params: { user: { first_name: 'Alex' } }.to_json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is not the owner of the user' do
+      let(:other_user) { FactoryBot.create(:user) }
+
+      it 'returns 403 Forbidden' do
+        put "/api/users/#{user.id}",
+            params: { user: { first_name: 'Alex' } }.to_json,
+            headers: api_headers(token: other_user.token)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when admin updates a user' do
+      let(:admin) { FactoryBot.create(:user, role: 'admin') }
+
+      it 'updates a user' do
+        put "/api/users/#{user.id}",
+            params: { user: { first_name: 'Alex' } }.to_json,
+            headers: api_headers(token: admin.token)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['user']).to include('first_name' => 'Alex')
       end
     end
 
@@ -166,11 +205,7 @@ RSpec.describe 'Companies API', type: :request do
   describe 'DELETE /users/:id' do
     let!(:user) { FactoryBot.create(:user) }
 
-    before do
-      user.login
-    end
-
-    context 'when the record exists' do
+    context 'when user is authenticated and requests are valid' do
       it 'deletes a user' do
         delete "/api/users/#{user.id}", headers: api_headers(token: user.token)
 
@@ -181,6 +216,24 @@ RSpec.describe 'Companies API', type: :request do
         expect do
           delete "/api/users/#{user.id}", headers: api_headers(token: user.token)
         end.to change(User, :count).by(-1)
+      end
+    end
+
+    context 'when user is unauthenticated' do
+      it 'returns 401 Unauthorized' do
+        delete "/api/users/#{user.id}"
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is not the owner of the user' do
+      let(:other_user) { FactoryBot.create(:user) }
+
+      it 'returns 403 Forbidden' do
+        delete "/api/users/#{user.id}", headers: api_headers(token: other_user.token)
+
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end

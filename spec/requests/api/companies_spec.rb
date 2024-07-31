@@ -14,7 +14,6 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a list of 3 companies' do
       get '/api/companies'
 
-      json_body = JSON.parse(response.body)
       expect(json_body['companies'].size).to eq(3)
     end
 
@@ -28,7 +27,6 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns a list of 3 companies without root' do
         get '/api/companies', headers: api_headers(root: '0')
 
-        json_body = JSON.parse(response.body)
         expect(json_body.size).to eq(3)
       end
     end
@@ -44,8 +42,6 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a single company' do
       get "/api/companies/#{companies.first.id}"
 
-      json_body = JSON.parse(response.body)
-
       expect(json_body).to include('company')
     end
 
@@ -58,8 +54,6 @@ RSpec.describe 'Companies API', type: :request do
 
       it 'returns a single company using jsonapi' do
         get "/api/companies/#{companies.first.id}", headers: api_headers(serializer: 'jsonapi')
-
-        json_body = JSON.parse(response.body)
 
         expect(json_body).to include('data')
         expect(json_body['data']).to include('id')

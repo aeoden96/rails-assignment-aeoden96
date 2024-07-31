@@ -31,14 +31,6 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  def login
-    token
-  end
-
-  def logout
-    regenerate_token
-  end
-
   private
 
   def password_not_blank

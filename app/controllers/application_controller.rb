@@ -32,10 +32,8 @@ class ApplicationController < ActionController::Base
            status: :unauthorized
   end
 
-  def authenticate_admin!
-    token = request.headers['Authorization']
-    @current_user = User.find_by(token: token)
-    return if @current_user&.admin?
+  def authorize_admin!
+    return if current_user&.admin?
 
     render json: { errors: { resource: ['is forbidden'] } },
            status: :forbidden
