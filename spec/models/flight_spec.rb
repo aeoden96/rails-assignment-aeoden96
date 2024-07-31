@@ -15,7 +15,18 @@
 require 'rails_helper'
 
 RSpec.describe Flight, type: :model do
-  let(:flight) { create(:flight) }
+  let(:company) { create(:company) }
+  let!(:flight) do
+    create(:flight, company: company,
+                    base_price: 12_345,
+                    departs_at: DateTime.now + 1.day,
+                    arrives_at: DateTime.now + 3.days)
+  end
+
+  let(:flight2) do
+    create(:flight, company: company, departs_at: DateTime.now + 5.days,
+                    arrives_at: DateTime.now + 8.days)
+  end
 
   describe 'validations' do
     it 'all attributes are valid' do
@@ -37,6 +48,15 @@ RSpec.describe Flight, type: :model do
       flight.arrives_at = DateTime.now + 2.days
       expect(flight).not_to be_valid
       expect(flight.errors[:departs_at]).to include('must be before arrives_at')
+    end
+  end
+
+  describe 'check overlaping beetwen flights in same company' do
+    it 'when overlaps with another flight is invalid' do
+      flight2.departs_at = DateTime.now + 2.days
+      flight2.arrives_at = DateTime.now + 6.days
+      expect(flight2).not_to be_valid
+      expect(flight2.errors[:departs_at]).to include('overlap with another flight in same company')
     end
   end
 

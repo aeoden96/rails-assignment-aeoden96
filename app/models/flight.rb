@@ -37,21 +37,22 @@ class Flight < ApplicationRecord
     where('departs_at > ?', Time.current)
   }
 
-  scope :same_company, lambda { |company_id|
-    where(company_id: company_id)
+  scope :same_company, lambda { |company_id, id|
+    where(company_id: company_id).where.not(id: id)
   }
 
   scope :not_overlapping, lambda { |flight|
-    where.not('departs_at < ? AND arrives_at > ?', flight.arrives_at, flight.departs_at)
+    where('? BETWEEN departs_at AND arrives_at OR ? BETWEEN departs_at AND arrives_at',
+          flight.departs_at, flight.arrives_at)
   }
 
   def no_overlapping_flights
     return unless company.present? && departs_at.present? && arrives_at.present?
 
-    overlapping_flights = Flight.same_company(company_id).not_overlapping(self)
+    overlapping_flights = Flight.same_company(company_id, id).not_overlapping(self)
 
     return unless overlapping_flights.exists?
 
-    errors.add(:base, 'cannot overlap with another flight within the same company')
+    errors.add(:departs_at, 'overlap with another flight in same company')
   end
 end
