@@ -33,7 +33,7 @@ class FlightSerializer < Blueprinter::Base
     if difference >= 15
       flight.base_price
     elsif difference < 15 && difference >= 0
-      (flight.base_price * (1 + ((15 - difference) / 15))).round
+      (flight.base_price * (1 + ((15 - difference).to_f / 15))).round
     else
       (flight.base_price * 2).round
     end
