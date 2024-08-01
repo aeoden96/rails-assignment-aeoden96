@@ -46,6 +46,19 @@ class Flight < ApplicationRecord
           flight.departs_at, flight.arrives_at)
   }
 
+  scope :filter_by_name, lambda { |name|
+    where('LOWER(name) LIKE ?', "%#{name.downcase}%")
+  }
+
+  scope :filter_by_date, lambda { |date|
+    where('DATE(departs_at) = ?', Date.parse(date))
+  }
+
+  scope :filter_by_availability, lambda { |no_of_available_seats|
+    where('no_of_seats - (SELECT COALESCE(SUM(no_of_seats), 0)
+    FROM bookings WHERE flight_id = flights.id) >= ?', no_of_available_seats)
+  }
+
   def no_overlapping_flights
     return unless company.present? && departs_at.present? && arrives_at.present?
 
