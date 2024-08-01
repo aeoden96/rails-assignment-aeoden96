@@ -5,7 +5,7 @@ module Api
 
     def index
       # render json: render_index_serializer(CompanySerializer, Company.all, :companies)
-      companies = CompaniesQuery.new(params).call
+      companies = CompaniesQuery.new(params).with_active_flights
       render json: render_index_serializer(CompanySerializer, companies, :companies)
     end
 

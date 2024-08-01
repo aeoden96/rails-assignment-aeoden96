@@ -3,7 +3,7 @@ class UsersQuery
     @params = params
   end
 
-  def call
+  def with_filters
     users = User.all
     users = users.order(:email)
     if @params[:query].present?

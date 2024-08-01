@@ -3,7 +3,7 @@ class CompaniesQuery
     @params = params
   end
 
-  def call
+  def with_active_flights
     companies = Company.all
     companies = companies.with_active_flights if active_filter?
     companies.order(:name)

@@ -5,7 +5,7 @@ module Api
     before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index
-      bookings = BookingsQuery.new(params).call
+      bookings = BookingsQuery.new(params).with_active_flights
       render json: render_index_serializer(
         BookingSerializer,
         @current_user.admin? ? bookings : @current_user.bookings,

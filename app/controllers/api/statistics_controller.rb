@@ -4,12 +4,12 @@ module Api
     before_action :authorize_admin!
 
     def flights_index
-      flights = FlightsQuery.new(params).call
+      flights = FlightsQuery.new(params).with_filters
       render json: render_index_serializer(Statistics::FlightSerializer, flights, :flights)
     end
 
     def companies_index
-      companies = CompaniesQuery.new(params).call
+      companies = CompaniesQuery.new(params).with_active_flights
       render json: render_index_serializer(Statistics::CompanySerializer, companies, :companies)
     end
   end

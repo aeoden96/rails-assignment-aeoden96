@@ -5,7 +5,7 @@ module Api
     before_action :authorize_action!, only: [:update, :destroy, :show]
 
     def index
-      users = UsersQuery.new(params).call
+      users = UsersQuery.new(params).with_filters
       render json: render_index_serializer(UserSerializer, users, :users)
     end
 

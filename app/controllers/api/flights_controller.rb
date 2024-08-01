@@ -4,7 +4,7 @@ module Api
     before_action :authorize_admin!, only: [:create, :update, :destroy]
 
     def index
-      flights = FlightsQuery.new(params).call
+      flights = FlightsQuery.new(params).with_filters
       render json: render_index_serializer(FlightSerializer, flights, :flights)
     end
 
