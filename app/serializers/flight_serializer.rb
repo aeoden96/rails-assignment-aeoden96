@@ -26,13 +26,16 @@ class FlightSerializer < Blueprinter::Base
   end
 
   field :current_price do |flight|
-    days_to_departure = (flight.departs_at.to_date - Time.zone.today).to_i
+    departure_date = flight.departs_at.to_date
+    booked_at = DateTime.current.to_date
+    difference = (departure_date - booked_at).to_i
 
-    if days_to_departure >= 15
+    if difference >= 15
       flight.base_price
+    elsif difference < 15 && difference >= 0
+      (flight.base_price * (1 + ((15 - difference) / 15))).round
     else
-      multiplier = 1 + ((15 - days_to_departure) / 15.0)
-      (flight.base_price * multiplier).round
+      (flight.base_price * 2).round
     end
   end
 

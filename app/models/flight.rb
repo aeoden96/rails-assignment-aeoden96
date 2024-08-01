@@ -67,5 +67,6 @@ class Flight < ApplicationRecord
     return unless overlapping_flights.exists?
 
     errors.add(:departs_at, 'overlap with another flight in same company')
+    errors.add(:arrives_at, 'overlap with another flight in same company')
   end
 end
