@@ -28,7 +28,9 @@ class Booking < ApplicationRecord
 
   def seats_available
     return if flight.blank?
-    return if flight.bookings.sum(:no_of_seats) <= flight.no_of_seats
+    if flight.bookings.where.not(id: id).sum(:no_of_seats) + no_of_seats <= flight.no_of_seats
+      return
+    end
 
     errors.add(:no_of_seats, 'exceeds available seats for this flight')
   end

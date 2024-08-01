@@ -9,8 +9,8 @@ class UsersQuery
     if @params[:query].present?
       query = @params[:query].downcase
       users = users.where(
-        'LOWER(email) LIKE ? OR LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?',
-        "%#{query}%", "%#{query}%", "%#{query}%"
+        'LOWER(email) LIKE :query OR LOWER(first_name) LIKE :query OR LOWER(last_name) LIKE :query',
+        query: "%#{query}%"
       )
     end
     users
