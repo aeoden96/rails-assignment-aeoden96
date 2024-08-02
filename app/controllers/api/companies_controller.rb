@@ -4,8 +4,7 @@ module Api
     before_action :authorize_admin!, only: %i[create update destroy]
 
     def index
-      # render json: render_index_serializer(CompanySerializer, Company.all, :companies)
-      companies = CompaniesQuery.new(params).with_active_flights
+      companies = CompaniesQuery.new(relation: Company.all, params: params).with_active_flights
       render json: render_index_serializer(CompanySerializer, companies, :companies)
     end
 

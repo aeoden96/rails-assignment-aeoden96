@@ -17,8 +17,8 @@ FactoryBot.define do
     sequence(:name) { |n| "Flight-#{n}" }
     no_of_seats { 200 }
     base_price { 150 }
-    departs_at { DateTime.now + 1.day }
-    arrives_at { DateTime.now + 2.days }
+    sequence(:departs_at) { |n| DateTime.now + (n * 2).days }
+    sequence(:arrives_at) { |n| DateTime.now + (n * 2).days + 1.hour }
 
     company { create(:company) }
   end
