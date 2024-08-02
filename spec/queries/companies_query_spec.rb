@@ -40,7 +40,7 @@ RSpec.describe CompaniesQuery, type: :query do
 
       expect(result2.total_revenue).to eq(6000.0)
       expect(result2.total_no_of_booked_seats).to eq(35)
-      expect(result2.average_price_of_seats).to eq(171.0)
+      expect(result2.average_price_of_seats).to eq(171.43)
     end
 
     context 'when a company has no bookings' do

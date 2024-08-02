@@ -16,9 +16,9 @@ RSpec.describe 'Bookings API', type: :request do
         expect(json_body['companies'].size).to eq(1)
         expect(json_body['companies'][0]).to include({
                                                        'company_id' => company.id,
-                                                       'total_revenue' => 0,
+                                                       'total_revenue' => '0.0',
                                                        'total_no_of_booked_seats' => 0,
-                                                       'average_price_of_seats' => 0
+                                                       'average_price_of_seats' => '0.0'
                                                      })
       end
     end
