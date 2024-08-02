@@ -5,7 +5,7 @@ module Statistics
     field :id, name: :flight_id
 
     field :revenue do |flight|
-      flight.bookings.sum(:no_of_seats) * flight.base_price
+      flight.bookings.sum { |booking| booking.no_of_seats * booking.seat_price }
     end
 
     field :no_of_booked_seats do |flight|
@@ -13,7 +13,7 @@ module Statistics
     end
 
     field :occupancy do |flight|
-      (flight.bookings.sum(:no_of_seats) / flight.no_of_seats.to_f).round(2)
+      (flight.bookings.sum(:no_of_seats) / flight.no_of_seats.to_f * 100).round(2)
     end
   end
 end

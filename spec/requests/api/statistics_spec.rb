@@ -70,7 +70,7 @@ RSpec.describe 'Bookings API', type: :request do
 
       before do
         flight = FactoryBot.create(:flight, company: company, no_of_seats: 10, base_price: 20)
-        FactoryBot.create_list(:booking, 3, flight: flight, no_of_seats: 2)
+        FactoryBot.create_list(:booking, 3, flight: flight, no_of_seats: 2, seat_price: 20)
       end
 
       it 'calculates revenue' do
@@ -81,7 +81,7 @@ RSpec.describe 'Bookings API', type: :request do
                                                      'flight_id' => flight.id,
                                                      'revenue' => 120,
                                                      'no_of_booked_seats' => 6,
-                                                     'occupancy' => 0.6
+                                                     'occupancy' => 60
                                                    })
       end
     end
