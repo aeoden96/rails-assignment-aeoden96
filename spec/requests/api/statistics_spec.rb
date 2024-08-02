@@ -63,4 +63,44 @@ RSpec.describe 'Bookings API', type: :request do
     #   end
     # end
   end
+
+  describe 'GET /flights' do
+    context 'when flight has bookings' do
+      flight = nil
+
+      before do
+        flight = FactoryBot.create(:flight, company: company, no_of_seats: 10, base_price: 20)
+        FactoryBot.create_list(:booking, 3, flight: flight, no_of_seats: 2)
+      end
+
+      it 'calculates revenue' do
+        get '/api/statistics/flights', headers: api_headers(token: admin.token)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].size).to eq(1)
+        expect(json_body['flights'][0]).to include({
+                                                     'flight_id' => flight.id,
+                                                     'revenue' => 120,
+                                                     'no_of_booked_seats' => 6,
+                                                     'occupancy' => 0.6
+                                                   })
+      end
+    end
+
+    context 'when flight has no bookings' do
+      before do
+        FactoryBot.create(:flight, company: company)
+      end
+
+      it 'calculates revenue' do
+        get '/api/statistics/flights', headers: api_headers(token: admin.token)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].size).to eq(1)
+        expect(json_body['flights'][0]).to include({
+                                                     'revenue' => 0,
+                                                     'no_of_booked_seats' => 0,
+                                                     'occupancy' => 0
+                                                   })
+      end
+    end
+  end
 end
