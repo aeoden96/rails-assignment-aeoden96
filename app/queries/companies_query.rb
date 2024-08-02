@@ -33,7 +33,7 @@ class CompaniesQuery
       .select("CASE
                  WHEN #{total_booked_seats} = 0 THEN 0
                  ELSE #{total_revenue} /
-                      #{total_booked_seats}
+                      #{total_booked_seats}::float
                END AS average_price_of_seats")
       .left_joins(flights: :bookings) # company has many flights, so each flights calls bookings
       .group('companies.id') # used to compute average_price_of_seats for each company separately
