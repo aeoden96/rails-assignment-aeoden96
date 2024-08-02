@@ -3,6 +3,14 @@ module Statistics
     identifier :id
 
     field :id, name: :company_id
-    fields :total_revenue, :total_no_of_booked_seats, :average_price_of_seats
+    field :total_no_of_booked_seats
+
+    field :total_revenue do |company|
+      company.total_revenue.to_f
+    end
+
+    field :average_price_of_seats do |company|
+      company.average_price_of_seats.to_f
+    end
   end
 end

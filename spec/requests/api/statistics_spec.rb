@@ -16,52 +16,33 @@ RSpec.describe 'Bookings API', type: :request do
         expect(json_body['companies'].size).to eq(1)
         expect(json_body['companies'][0]).to include({
                                                        'company_id' => company.id,
-                                                       'total_revenue' => '0.0',
+                                                       'total_revenue' => 0.0,
                                                        'total_no_of_booked_seats' => 0,
-                                                       'average_price_of_seats' => '0.0'
+                                                       'average_price_of_seats' => 0.0
                                                      })
       end
     end
 
-    # context 'when user is authorized and requests are valid' do
-    #   it 'successfully returns a list of bookings' do
-    #     get '/api/bookings', headers: api_headers(token: user.token)
+    context 'when flight has bookings' do
+      flight = nil
 
-    #     expect(response).to have_http_status(:ok)
-    #     expect(json_body['bookings'].size).to eq(bookings.size)
-    #   end
+      before do
+        flight = FactoryBot.create(:flight, company: company, no_of_seats: 10, base_price: 20)
+        FactoryBot.create_list(:booking, 3, flight: flight, no_of_seats: 2, seat_price: 20)
+      end
 
-    #   it 'successfully returns a list of bookings without root' do
-    #     get '/api/bookings', headers: api_headers(root: '0', token: user.token)
-
-    #     expect(response).to have_http_status(:ok)
-    #   end
-
-    #   it 'returns a list of 3 bookings without root' do
-    #     get '/api/bookings', headers: api_headers(root: '0', token: user.token)
-
-    #     expect(json_body.size).to eq(3)
-    #   end
-    # end
-
-    # context 'when user is unauthenticated' do
-    #   it 'returns 401 Unauthorized' do
-    #     get '/api/bookings'
-
-    #     expect(response).to have_http_status(:unauthorized)
-    #   end
-    # end
-
-    # context 'when user is an admin' do
-    #   it 'successfully returns a list of bookings' do
-    #     other_bookings = FactoryBot.create_list(:booking, 3, user: other_user)
-
-    #     get '/api/bookings', headers: api_headers(token: admin.token)
-
-    #     expect(response).to have_http_status(:ok)
-    #     expect(json_body['bookings'].size).to eq(bookings.size + other_bookings.size)
-    #   end
-    # end
+      it 'calculates revenue' do
+        get '/api/statistics/companies', headers: api_headers(token: admin.token)
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].size).to eq(1)
+        expect(json_body['companies'][0]).to include({
+                                                       'company_id' => company.id,
+                                                       'total_revenue' => 120.0,
+                                                       'total_no_of_booked_seats' => 6,
+                                                       'average_price_of_seats' => 20.0
+                                                     })
+      end
+    end
   end
 
   describe 'GET /flights' do
