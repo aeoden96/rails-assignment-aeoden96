@@ -6,7 +6,7 @@ module Statistics
     field :total_no_of_booked_seats
 
     field :total_revenue do |company|
-      company.total_revenue.to_f
+      company.total_revenue.to_i
     end
 
     field :average_price_of_seats do |company|
