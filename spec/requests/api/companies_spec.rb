@@ -1,6 +1,8 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
   let!(:companies) { FactoryBot.create_list(:company, 3) }
+  let(:admin) { FactoryBot.create(:user, role: 'admin') }
+  let(:user) { FactoryBot.create(:user) }
 
   describe 'GET /companies' do
     it 'successfully returns a list of companies' do
@@ -12,7 +14,6 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a list of 3 companies' do
       get '/api/companies'
 
-      json_body = JSON.parse(response.body)
       expect(json_body['companies'].size).to eq(3)
     end
 
@@ -26,7 +27,6 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns a list of 3 companies without root' do
         get '/api/companies', headers: api_headers(root: '0')
 
-        json_body = JSON.parse(response.body)
         expect(json_body.size).to eq(3)
       end
     end
@@ -42,8 +42,6 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a single company' do
       get "/api/companies/#{companies.first.id}"
 
-      json_body = JSON.parse(response.body)
-
       expect(json_body).to include('company')
     end
 
@@ -57,8 +55,6 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns a single company using jsonapi' do
         get "/api/companies/#{companies.first.id}", headers: api_headers(serializer: 'jsonapi')
 
-        json_body = JSON.parse(response.body)
-
         expect(json_body).to include('data')
         expect(json_body['data']).to include('id')
         expect(json_body['data']).to include('type')
@@ -67,11 +63,30 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'POST /companies/:id' do
-    context 'when params are valid' do
+    context 'when user is unauthenticated' do
+      it 'returns 401 Unauthorized' do
+        post '/api/companies',
+             params: { company: { name: 'Croatia Airlines' } }.to_json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated but not authorized' do
+      it 'returns 403 Forbidden' do
+        post '/api/companies',
+             params: { company: { name: 'Croatia Airlines' } }.to_json,
+             headers: api_headers(token: user.token)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is authorized and params are valid' do
       it 'creates a company' do
         post '/api/companies',
              params: { company: { name: 'Croatia Airlines' } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(json_body['company']).to include('name' => 'Croatia Airlines')
       end
@@ -80,16 +95,16 @@ RSpec.describe 'Companies API', type: :request do
         expect do
           post '/api/companies',
                params: { company: { name: 'Croatia Airlines' } }.to_json,
-               headers: api_headers
+               headers: api_headers(token: admin.token)
         end.to change(Company, :count).by(1)
       end
     end
 
-    context 'when params are invalid' do
+    context 'when user is authorized and params are invalid' do
       it 'returns 400 Bad Request' do
         post '/api/companies',
              params: { company: { name: '' } }.to_json,
-             headers: api_headers
+             headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -102,7 +117,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'updates a company' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: 'Bulgaria Air' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
         expect(response).to have_http_status(:ok)
         expect(json_body['company']).to include('name' => 'Bulgaria Air')
       end
@@ -110,7 +125,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'the updates are persisted in database' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: 'Bulgaria Air' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(Company.first.name).to eq('Bulgaria Air')
       end
@@ -120,7 +135,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         put "/api/companies/#{companies.first.id}",
             params: { company: { name: '' } }.to_json,
-            headers: api_headers
+            headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -131,14 +146,14 @@ RSpec.describe 'Companies API', type: :request do
   describe 'DELETE /companies/:id' do
     context 'when the record exists' do
       it 'deletes a company' do
-        delete "/api/companies/#{companies.first.id}"
+        delete "/api/companies/#{companies.first.id}", headers: api_headers(token: admin.token)
 
         expect(response).to have_http_status(:no_content)
       end
 
       it 'the number of records in the resource table is decremented by one' do
         expect do
-          delete "/api/companies/#{companies.first.id}"
+          delete "/api/companies/#{companies.first.id}", headers: api_headers(token: admin.token)
         end.to change(Company, :count).by(-1)
       end
     end

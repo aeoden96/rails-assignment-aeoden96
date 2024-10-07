@@ -1,18 +1,27 @@
 module Api
   class BookingsController < ApplicationController
+    before_action :authenticate_user!
+    before_action :set_current_booking, only: [:update, :destroy, :show]
+    before_action :authorize_action!, only: [:update, :destroy, :show]
+
     def index
-      render json: render_index_serializer(BookingSerializer, Booking.all, :bookings)
+      bookings = @current_user.admin? ? Booking.all : @current_user.bookings
+      bookings = bookings.includes(:user, :flight, flight: :company)
+      bookings = BookingsQuery.new(bookings, params).with_active_flights
+      render json: render_index_serializer(
+        BookingSerializer,
+        bookings,
+        :bookings
+      )
     end
 
     def show
-      booking = Booking.find(params[:id])
-
       render json: render_serializer_show(BookingSerializer, JsonapiSerializer::BookingSerializer,
-                                          booking, :booking)
+                                          @current_booking, :booking)
     end
 
     def create
-      booking = Booking.new(booking_params)
+      booking = Booking.new(create_params)
 
       if booking.save
         render json: BookingSerializer.render(booking, root: :booking),
@@ -23,24 +32,47 @@ module Api
     end
 
     def update
-      booking = Booking.find(params[:id])
-
-      if booking.update(booking_params)
-        render json: BookingSerializer.render(booking, root: :booking)
+      if @current_booking.update(update_params)
+        render json: BookingSerializer.render(@current_booking, root: :booking)
       else
-        render json: { errors: booking.errors }, status: :bad_request
+        render json: { errors: @current_booking.errors }, status: :bad_request
       end
     end
 
     def destroy
-      booking = Booking.find(params[:id])
-      booking.destroy
+      @current_booking.destroy
 
       head :no_content
     end
 
     def booking_params
-      params.require(:booking).permit(:no_of_seats, :seat_price, :user_id, :flight_id)
+      params.require(:booking).permit(:no_of_seats, :seat_price, :user_id, :flight_id, :filter)
+    end
+
+    private
+
+    def create_params
+      @current_user.admin? ? booking_params : booking_params.merge(user_id: @current_user.id)
+    end
+
+    def update_params
+      if !@current_user.admin? &&
+         booking_params[:user_id].present?
+        booking_params.except(:user_id)
+      else
+        booking_params
+      end
+    end
+
+    def set_current_booking
+      @current_booking = Booking.find(params[:id])
+    end
+
+    def authorize_action!
+      return if @current_user.admin? || @current_user.id == @current_booking.user_id
+
+      render json: { errors: { resource: ['is forbidden'] } },
+             status: :forbidden
     end
   end
 end

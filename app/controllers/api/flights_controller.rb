@@ -1,7 +1,12 @@
 module Api
   class FlightsController < ApplicationController
+    before_action :authenticate_user!, only: [:create, :update, :destroy]
+    before_action :authorize_admin!, only: [:create, :update, :destroy]
+
     def index
-      render json: render_index_serializer(FlightSerializer, Flight.all, :flights)
+      flights = FlightsQuery.new(relation: Flight.all.includes(:company),
+                                 params: params).with_filters
+      render json: render_index_serializer(FlightSerializer, flights, :flights)
     end
 
     def show
@@ -41,7 +46,7 @@ module Api
 
     def flight_params
       params.require(:flight).permit(:name, :no_of_seats, :base_price, :departs_at, :arrives_at,
-                                     :company_id)
+                                     :company_id, :filter)
     end
   end
 end

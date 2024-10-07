@@ -1,7 +1,11 @@
 module Api
   class CompaniesController < ApplicationController
+    before_action :authenticate_user!, only: %i[create update destroy]
+    before_action :authorize_admin!, only: %i[create update destroy]
+
     def index
-      render json: render_index_serializer(CompanySerializer, Company.all, :companies)
+      companies = CompaniesQuery.new(relation: Company.all, params: params).with_active_flights
+      render json: render_index_serializer(CompanySerializer, companies, :companies)
     end
 
     def show
@@ -39,7 +43,7 @@ module Api
     end
 
     def company_params
-      params.require(:company).permit(:name)
+      params.require(:company).permit(:name, :filter)
     end
   end
 end

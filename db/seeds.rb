@@ -11,8 +11,8 @@ company1 = Company.create!(name: 'Airways Inc.')
 company2 = Company.create!(name: 'Skyline Airways')
 
 # Create users
-user1 = User.create!(first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com')
-user2 = User.create!(first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com')
+user1 = User.create!(first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', password: 'password', role: 'admin')
+user2 = User.create!(first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', password: 'password', role: 'admin')
 
 # Create flights
 flight1 = Flight.create!(

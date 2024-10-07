@@ -32,6 +32,25 @@ RSpec.describe Booking, type: :model do
     end
   end
 
+  describe 'checks if flight is overbooked' do
+    let(:flight) { create(:flight, no_of_seats: 2) }
+
+    context 'when updating flight' do
+      it 'is not overbooked if valid' do
+        booking = create(:booking, flight: flight, no_of_seats: 1)
+        booking.update(no_of_seats: 2)
+        expect(booking).to be_valid
+      end
+
+      it 'is overbooked if invalid' do
+        booking = create(:booking, flight: flight, no_of_seats: 1)
+        booking.update(no_of_seats: 3)
+        expect(booking).not_to be_valid
+        expect(booking.errors[:no_of_seats]).to include('exceeds available seats for this flight')
+      end
+    end
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:flight) }
     it { is_expected.to belong_to(:user) }
